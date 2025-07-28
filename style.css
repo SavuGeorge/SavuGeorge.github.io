@@ -1,7 +1,7 @@
 body {
-    background-color: #17171a;
-    color:rgb(255, 255, 255);
-    font-family: 'Taviraj', serif;
+    background-color: #eff4f7;
+    color: #000000;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 1.2em;
     margin: 0;
     margin-top: 1.5em;
@@ -16,7 +16,7 @@ body {
 .name {
     font-size: 2.2em;
     font-weight: bold;
-    color: rgb(145, 22, 27)
+    color: #000000;
 }
 .desc {
     font-size: 0.9em;
@@ -63,7 +63,7 @@ body {
     border-radius: 160px;
     overflow: hidden;
     border-style: solid;
-    border-color: rgb(145, 22, 27);
+    border-color: #007bff;
     border-width: 3px;
     width: 12em;
     height: 12em;
@@ -96,8 +96,8 @@ h3{
     font-weight: 100;
     text-decoration: underline;
     text-decoration-thickness: from-font;
-    text-decoration-color: rgb(255,255,255);
-    color: rgb(255,255,255);
+    text-decoration-color: #000000;
+    color: #000000;
 }
 @media screen and (max-device-width: 480px){
     h3{
@@ -146,7 +146,7 @@ h3{
 }
 .proj-img{
     display: inline-block;
-    border: solid 1px rgb(255, 255, 255);;
+    border: solid 1px #000000;
     border-radius: 1em;
     width: 160px;
     height: 90px;
@@ -171,7 +171,7 @@ h3{
     text-align: center;
 }
 a{
-    color: rgb(209, 26, 32);
+    color: #007bff;
     font-weight: bold;
 }
 .project-blobs{
@@ -190,5 +190,5 @@ a{
     font-size: 1.3em;
     font-weight: 300;
     font-weight: bold;
-    color: rgb(173, 32, 37)
+    color: #007bff;
 }
