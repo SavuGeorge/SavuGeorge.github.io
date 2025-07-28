@@ -114,6 +114,15 @@ h3{
     }
 }
 
+h4.project-subsection {
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    font-size: 1.3em;
+    font-weight: 400;
+    color: #0056b3;
+    text-align: center;
+}
+
 .proj-card {
     box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
     border-radius: 0.4em;
