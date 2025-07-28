@@ -90,6 +90,7 @@ body {
     font-family: 'Times New Roman', Times, serif;
     font-size: 1em;
 }
+
 h3{
     margin-top: 1.3em;
     margin-bottom: 0.4em;
@@ -99,6 +100,13 @@ h3{
     text-decoration-thickness: from-font;
     text-decoration-color: #333333;
     color: #333333;
+}
+
+.h3-small {
+    font-size: 1.2em !important;
+    margin-top: 2em !important;
+    text-align: left;
+    margin-left: 0.2em;
 }
 @media screen and (max-device-width: 480px){
     h3{
@@ -148,12 +156,21 @@ h3{
 }
 .line{
     display: flex;
+    padding-bottom: 0.2em;
 }
 @media screen and (max-device-width: 480px){
     .line{
         padding-left: 1em;
     }
 }
+.line .proj-title {
+    font-size: 0.9em;
+}
+
+.line .proj-desc {
+    font-size: 0.7em;
+}
+
 .proj-img{
     display: inline-block;
     border: solid 1px #cccccc;
@@ -162,8 +179,11 @@ h3{
     height: 90px;
     flex-shrink: 0;
 }
-.proj-text{
+.line .proj-text {
     padding: 0.3em;
+    line-height: 1.2;
+}
+.proj-text{
     display: block;
     flex-grow: 1;
 }
