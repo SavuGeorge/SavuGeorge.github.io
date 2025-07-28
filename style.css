@@ -1,10 +1,11 @@
 body {
     background-color: #eff4f7;
-    color: #000000;
+    color: #333333;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 1.2em;
     margin: 0;
     margin-top: 1.5em;
+    line-height: 1.6;
 }
 @media screen and (max-device-width: 480px){
     body{
@@ -63,7 +64,7 @@ body {
     border-radius: 160px;
     overflow: hidden;
     border-style: solid;
-    border-color: #007bff;
+    border-color: #0056b3;
     border-width: 3px;
     width: 12em;
     height: 12em;
@@ -96,8 +97,8 @@ h3{
     font-weight: 100;
     text-decoration: underline;
     text-decoration-thickness: from-font;
-    text-decoration-color: #000000;
-    color: #000000;
+    text-decoration-color: #333333;
+    color: #333333;
 }
 @media screen and (max-device-width: 480px){
     h3{
@@ -105,11 +106,22 @@ h3{
     }
 }
 
+.proj-card {
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+    border-radius: 0.4em;
+    transition: transform .3s, box-shadow .3s;
+}
+
+.proj-card:hover {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transform: scale(1.02);
+}
+
 .proj-card img{
     width: 300px;
     border-radius: 0.4em;
-    box-shadow: 0.1em 0.1em 0.2em #0134;
-    transition: transform .3s;
+    transition: filter .3s;
+    display: block;
 }
 @media screen and (max-device-width: 480px){
     .proj-card img{
@@ -117,13 +129,11 @@ h3{
     }
 }
 .proj-card img:hover{
-    filter:brightness(130%);
-    transform: scale(1.02);
+    filter:brightness(120%);
 }
 .blob{
     display: inline-block;
     width: 300px;
-    padding: 0.4em;
 }
 @media screen and (max-device-width: 480px){
     .blob{
@@ -146,7 +156,7 @@ h3{
 }
 .proj-img{
     display: inline-block;
-    border: solid 1px #000000;
+    border: solid 1px #cccccc;
     border-radius: 1em;
     width: 160px;
     height: 90px;
@@ -171,13 +181,21 @@ h3{
     text-align: center;
 }
 a{
-    color: #007bff;
+    color: #0056b3;
     font-weight: bold;
+    text-decoration: none;
+    transition: color .3s;
+}
+a:hover {
+    color: #007bff;
+    text-decoration: underline;
 }
 .project-blobs{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    row-gap: 2em;
+    column-gap: 1em;
 }
 .project-lines{
     margin-bottom: 4em;
@@ -190,5 +208,27 @@ a{
     font-size: 1.3em;
     font-weight: 300;
     font-weight: bold;
-    color: #007bff;
+    color: #0056b3;
+}
+
+.blob-large {
+    width: calc(600px + 1em);
+}
+
+.blob-large .proj-card img {
+    width: 100%;
+}
+
+@media screen and (max-device-width: 480px){
+    .blob-large{
+        width: 80%;
+    }
+}
+
+.blob-large .proj-title-centered {
+    font-size: 1.3em;
+}
+
+.blob-large .proj-desc {
+    font-size: 1em;
 }
