@@ -214,6 +214,9 @@ h4.project-subsection {
     border-radius: 0.6em;
     transition: transform .3s ease, box-shadow .3s ease;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .enhanced-card {
@@ -222,6 +225,9 @@ h4.project-subsection {
 
 .enhanced-card .proj-content {
     padding: 1.2em;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .proj-card:hover {
@@ -250,7 +256,8 @@ h4.project-subsection {
 }
 
 .blob{
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
     width: 300px;
 }
 
