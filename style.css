@@ -404,3 +404,111 @@ a:hover {
 .desc {
     font-size: 0.9em;
 }
+
+.proj-content .proj-desc {
+    flex-grow: 1;
+}
+
+.proj-content .view-project {
+    align-self: flex-start;
+}
+
+.blob-large .proj-content .view-project {
+    align-self: center;
+}
+
+.proj-title-centered a {
+    color: #333;
+}
+
+.proj-title-centered a:hover {
+    color: #0056b3;
+}
+
+.line .proj-title a {
+    color: #333;
+}
+
+.line .proj-title a:hover {
+    color: #0056b3;
+}
+
+/* Consulting Cards */
+.consulting-blobs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5em;
+    margin-bottom: 2.5em;
+}
+
+.consulting-blob {
+    display: flex;
+    width: calc(50% - 0.75em);
+}
+
+.consulting-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-radius: 0.6em;
+    transition: transform .3s ease, box-shadow .3s ease;
+    overflow: hidden;
+    width: 100%;
+}
+
+.consulting-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transform: translateY(-4px);
+}
+
+.consulting-card img {
+    width: 64px;
+    height: 64px;
+    margin: 1.2em;
+    border-radius: 0.3em;
+    transition: filter .3s ease, transform .3s ease;
+}
+
+.consulting-card:hover img {
+    filter: brightness(105%);
+    transform: scale(1.03);
+}
+
+.consulting-content {
+    padding: 1.2em;
+    padding-left: 0;
+    text-align: left;
+}
+
+.consulting-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 0.3em;
+}
+
+.consulting-title a {
+    color: #333;
+}
+
+.consulting-title a:hover {
+    color: #0056b3;
+}
+
+.consulting-desc {
+    font-size: 0.85em;
+    color: #666;
+}
+
+@media screen and (max-device-width: 480px){
+    .consulting-blobs{
+        flex-wrap: nowrap;
+        flex-direction: column;
+        align-items: center;
+    }
+    .consulting-blob{
+        width: 80%;
+        padding-bottom: 1em;
+    }
+}
