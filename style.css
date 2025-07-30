@@ -234,7 +234,27 @@ body {
     color: #666;
 }
 
+/* Blog Link Styling */
+.blog-link {
+    display: inline-block;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #0056b3;
+    text-decoration: none;
+    padding: 0.7em 1.2em;
+    border: 2px solid rgba(0, 86, 179, 0.2);
+    border-radius: 0.5em;
+    transition: all 0.3s ease;
+    background: rgba(0, 86, 179, 0.05);
+}
 
+.blog-link:hover {
+    color: #007bff;
+    background: rgba(0, 86, 179, 0.1);
+    border-color: rgba(0, 86, 179, 0.3);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
 
 /* Headers */
 h1 {
