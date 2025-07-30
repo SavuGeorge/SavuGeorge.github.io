@@ -234,6 +234,33 @@ body {
     color: #666;
 }
 
+/* Blogposts Link */
+.blogposts-link-container {
+    margin-top: 1.1em;
+}
+
+.blogposts-link {
+    display: inline-block;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #0056b3;
+    text-decoration: none;
+    padding: 0.8em 1.5em;
+    border: 2px solid #0056b3;
+    border-radius: 2em;
+    transition: all 0.3s ease;
+    background: transparent;
+    letter-spacing: 0.02em;
+}
+
+.blogposts-link:hover {
+    color: #ffffff;
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+    text-decoration: none;
+}
+
 /* Blog Link Styling */
 .blog-link {
     display: inline-block;
