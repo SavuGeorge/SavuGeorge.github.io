@@ -170,7 +170,7 @@ body {
 
 /* Headers */
 h3{
-    margin-top: 2em;
+    margin-top: 0.5em;
     margin-bottom: 1em;
     font-size: 1.8em;
     font-weight: 600;
@@ -315,7 +315,9 @@ h4.project-subsection {
     margin-top: 0.5em;
     transition: all 0.3s ease;
     letter-spacing: 0.02em;
+    align-self: center;
 }
+
 
 .view-project:hover {
     color: #007bff;
@@ -403,7 +405,7 @@ a:hover {
 }
 
 .proj-content .view-project {
-    align-self: flex-start;
+    align-self: center;
 }
 
 .blob-large .proj-content .view-project {
