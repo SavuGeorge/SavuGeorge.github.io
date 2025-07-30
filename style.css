@@ -15,6 +15,52 @@ body {
     }
 }
 
+/* Navbar */
+.navbar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 1.5em;
+}
+
+.navbar a {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.85em;
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+    border-radius: 0.4em;
+    transition: all 0.3s ease;
+}
+
+.navbar a:hover {
+    color: #0056b3;
+    background-color: rgba(0, 86, 179, 0.1);
+}
+
+.navbar a.active {
+    color: #0056b3;
+    background-color: rgba(0, 86, 179, 0.15);
+    font-weight: 600;
+}
+
+@media screen and (max-device-width: 480px){
+    .navbar {
+        position: relative;
+        top: 0;
+        left: 0;
+        justify-content: center;
+        margin-bottom: 1em;
+    }
+    
+    .navbar a {
+        font-size: 2.2em;
+        padding: 0.3em 0.6em;
+    }
+}
+
 /* Animations */
 @keyframes fadeIn {
     from {
@@ -169,6 +215,14 @@ body {
 
 
 /* Headers */
+h1 {
+    font-size: 2.4em;
+    font-weight: 700;
+    color: #333333;
+    margin-bottom: 1em;
+    letter-spacing: -0.02em;
+}
+
 h3{
     margin-top: 0.5em;
     margin-bottom: 1em;
@@ -473,6 +527,8 @@ a:hover {
 .consulting-content {
     padding: 1.2em;
     text-align: left;
+    display: flex;
+    flex-direction: column;
 }
 
 .consulting-title {
@@ -492,6 +548,25 @@ a:hover {
 .consulting-desc {
     font-size: 0.85em;
     color: #666;
+    flex-grow: 1;
+    margin-bottom: 0.8em;
+}
+
+.learn-more {
+    font-size: 0.75em;
+    font-weight: 500;
+    color: #0056b3;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    letter-spacing: 0.02em;
+    align-self: flex-start;
+}
+
+.learn-more:hover {
+    color: #007bff;
+    transform: translateX(3px);
+    text-decoration: none;
 }
 
 @media screen and (max-device-width: 480px){
