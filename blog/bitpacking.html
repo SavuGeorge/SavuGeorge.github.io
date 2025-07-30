@@ -407,7 +407,7 @@
     
     <h2>Booleans</h2>
     
-    <p>Since memory is stored in 8-bit chunks, pretty much all programming languages also use 8 bits for a boolean. That's fine if you're looking to use them for computation, but not ideal if you just want to store them, or if you're sending them across the network.</p>
+    <p>Since memory is stored in 8-bit chunks, most programming languages also use 8 bits for a boolean. That's fine if you're looking to use them for computation, but not ideal if you just want to store them, or if you're sending them across the network.</p>
     
     <p>They're simple enough to bitpack though. In most programming languages, the two values they can take are:</p>
     
@@ -446,7 +446,7 @@ False: 0000 0000</pre>
         $$\text{value} = (-1)^S \times 2^{(E-127)} \times \left(1 + \frac{M}{2^{23}}\right)$$
     </div>
     
-    <p>Actually, the formula is different for a few special cases, which complicates things. Don't worry too much about that for now, but here they are:</p>
+    <p> The IEEE754 actually has a few special cases. If the exponent is 0, the mantissa value loses the + 1. <br> Zero, infinity, and NaN are special values. </p>
     
     <div class="math-block">
         $$\text{value} = \begin{cases}
@@ -511,7 +511,7 @@ return format;</code></pre>
     
     <p>The order that bytes are stored in CPU's isn't the same across all architectures. Some will store the most significant byte first (known as big-endian), and others the least significant byte first (known as little-endian).</p>
     
-    <p>Modern CPUs (x86, x64, ARM) are almost always little-endian. Certainly anything someone might be playing a video game on.</p>
+    <p>Modern CPUs (x86, x64, ARM) are almost always only able to do little-endian, or can do both but are configured for little-endian. </p>
     
     <p>In C#, you don't need to worry about this - the runtime handles byte ordering for primitive types. You only care when manually packing bytes for network protocols (which traditionally use big-endian). For our bitpacking, C# handles the byte ordering, so we don't need to worry about it.</p>
     
@@ -573,7 +573,7 @@ public struct BitpackedExampleData
     
     <p>Under the hood, structs marked for bitpacking have custom readers and writers generated for them. IL code is generated for them and injected into the game's DLL.</p>
     
-    <p>This implementation just sticks everything into an array of bytes, that Mirror then networks normally. There's some overhead in handling the byte boundaries, and all the bit-operations needed to bitpack, but it's mostly negligible. If bandwidth matters to your bottom-line, or to whether or not your players are able to play your game, then it's a very light cost to pay.</p>
+    <p>This implementation just sticks everything into an array of bytes, that Mirror then networks normally. There's some CPU overhead in handling the byte boundaries, and all the bit-operations needed to bitpack, but it's mostly negligible. If bandwidth matters to your bottom-line, or to whether or not your players are able to play your game, then it's a very light cost to pay. </p>
     
     <p>It's an open-source fork of mirror, so you're free to use and modify it as needed!</p>
     
