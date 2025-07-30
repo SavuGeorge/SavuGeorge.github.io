@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitpacking for Game Networking - George B. Green's stuff</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+        document.addEventListener('DOMContentLoaded', (event) => {
+            hljs.highlightAll();
+        });
+    </script>
+    <style>
+        body {
+            background-color: #eff4f7;
+            color: #333333;
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 1.2em;
+            margin: 0;
+            margin-top: 4.5em;
+            line-height: 1.6;
+        }
+        
+        @media screen and (max-device-width: 480px){
+            body{
+                font-size: 3em;	
+                margin-top: 0.4em;
+            }
+        }
+        
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            gap: 1.5em;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.6em 2em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+            border-radius: 0.4em;
+            transition: all 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+
+        .navbar a.active {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.15);
+            font-weight: 600;
+        }
+
+        @media screen and (max-device-width: 480px){
+            .navbar {
+                position: relative;
+                justify-content: center;
+                margin-bottom: 1em;
+                background: #ffffff;
+                backdrop-filter: none;
+                padding: 0.8em 1em;
+            }
+            
+            .navbar a {
+                font-size: 2em;
+                padding: 0.3em 0.6em;
+            }
+        }
+        
+        /* Layout */
+        .outer {
+            display: table;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+        .middle {
+            display: table-cell;
+            vertical-align: middle; 
+        }
+        .inner {
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        @media screen and (max-device-width: 480px){
+            .inner{
+                max-width: 100%;
+            }
+        }
+        
+        .tldr {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .tldr strong {
+            color: #2c5aa0;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        pre {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .code-block {
+            margin: 20px 0;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .code-header {
+            background: #34495e;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .math-block {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .step-header {
+            font-weight: bold;
+            color: #2c5aa0;
+            margin: 25px 0 10px 0;
+        }
+        
+        .binary-table {
+            font-family: 'Monaco', 'Consolas', monospace;
+            margin: 20px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        .binary-table th,
+        .binary-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .binary-table th {
+            background: #f0f0f0;
+        }
+        
+        .placeholder {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 6px;
+            color: #856404;
+            font-style: italic;
+        }
+        
+        .highlight {
+            background: #ffffcc;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #eee;
+            margin: 40px 0;
+        }
+
+        /* Links */
+        a {
+            color: #0056b3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color .3s ease;
+        }
+        a:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        /* Custom syntax highlighting adjustments */
+        .hljs {
+            background: #f8f8f8 !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="../index.html">Home</a>
+        <a href="./" class="active">Blog</a>
+        <a href="../performance.html">Performance Consulting</a>
+        <a href="../networking.html">Networking Consulting</a>
+    </nav>
+    
+    <div class="outer">
+        <div class="middle">
+            <div class="inner">
+        <h1>Bitpacking for Game Networking</h1>
+    
+    <div class="tldr">
+        <strong>TL;DR:</strong> If you don't care about any of the implementation details, and you just want something that just works... Well, you're in luck! I wrote a fork of Mirror that does exactly that. <a href="https://github.com/SavuGeorge/TurboMirror">Here's a link</a>, good luck!
+    </div>
+    
+    <hr>
+    
+    <p>Game networking is one of the contexts where you might care about the size of your data.</p>
+    
+    <p>For games with hosted servers, bandwidth often costs money.</p>
+    
+    <p>Depending on the type of game you're making, your users might have limited bandwidth to work with.</p>
+    
+    <p>Not every game cares about the above issues. But, if you do, there's a couple of useful tricks you should add to your toolbelt:</p>
+    
+    <h2>Integers</h2>
+    
+    <p>Computers store data in base 2, as 0's and 1's. You already know this.</p>
+    
+    <p>You probably also know how integers are stored. Here's an example:</p>
+    
+    <div class="math-block">
+        $$1011_2 = 1 \times 2^3 + 0 \times 2^2 + 1 \times 2^1 + 1 \times 2^0$$
+        $$= 1 \times 8 + 0 \times 4 + 1 \times 2 + 1 \times 1$$
+        $$= 8 + 0 + 2 + 1 = 11_{10}$$
+    </div>
+    
+    <p>Not too complicated.</p>
+    
+    <p>With all the bits set to 1 we get:</p>
+    
+    <div class="math-block">
+        $$1111_2 = 1 \times 2^3 + 1 \times 2^2 + 1 \times 2^1 + 1 \times 2^0 = 15_{10}$$
+    </div>
+    
+    <p>So with 4 bits, we have a max value of 15. For 5 bits we have a max value of 31. More generally:</p>
+    
+    <div class="math-block">
+        $$\text{Max value for N-bit unsigned int} = 2^N - 1$$
+    </div>
+    
+    <p>For a 32-bit unsigned integer, we can represent a value up to 4,294,967,295. A 32-bit signed integer spends 1 bit on the sign representation, leaving us with a max value of 2,147,483,647.</p>
+    
+    <p>32-bit integers are of course one of the most commonly used types. There's smaller 16-bit and 8-bit alternatives, as well as larger ones at 64-bits or maybe higher. But, from my experience, most programmers just use an <code>int</code> whenever they want to represent any whole quantity.</p>
+    
+    <p>In many cases, the majority of that [-2,147,483,647, 2,147,483,647] value range will be wasted. For example, you might be using an <code>int</code> for an HP value. In your game's rules Max HP might actually only go down to 0, and as high as 10000. For that range, <span class="highlight">14 bits is all you need</span>. That's 18 bits being wasted.</p>
+    
+    <p>One simple way to lower the waste is to simply use a more appropriate integer size. For the above case, a <code>short</code> or <code>ushort</code> is enough to cover our full range. That's still 2 wasted bits in this case, but it's better.</p>
+    
+    <p>Ideally though, for the smallest possible representation, we'd just use exactly 14 bits.</p>
+    
+    <p>In practice, CPU's and memory don't handle bit-strings of arbitrary length. Most CPU's work with 64-bit words, and memory is addressable in 8-bit chunks. So, there's no 14-bit integer type in your programming language. Tough. We'll need to do something else.</p>
+    
+    <p>Your first instinct might be to just store it as an actual string. In practice that's much worse, since each character in a string requires several bytes to represent.</p>
+    
+    <p>The solution I went with is bitpacking.</p>
+    
+    <h2>Bitpacking</h2>
+    
+    <p>The basic idea of bitpacking is to cram multiple values into a single variable, using a bit of simple bitwise math.</p>
+    
+    <p>Let's look at an example:<br>
+    Say we have an HP value that has a gameplay min value of 0, and a max of 1000. That will require 10 bits to store.<br>
+    We also have a mana value that has a max value of 64. That will take 6 bits to store.<br>
+    Neat total of 16 bits, we can fit that into a <code>ushort</code></p>
+    
+    <p>We will shift the values to line them up, and then OR them.</p>
+    
+    <div class="step-header">Step 1: Initial bit values</div>
+    <div class="math-block">
+        $$\begin{align}
+        \text{HP} &= 850_{10} = 11\ 0101\ 0010_2 \quad \text{(10 bits)} \\
+        \text{Mana} &= 45_{10} = 10\ 1101_2 \quad \text{(6 bits)}
+        \end{align}$$
+    </div>
+    
+    <div class="step-header">Step 2: Shifted bit values</div>
+    <p>We want to pack them as: <code>[6 bits mana][10 bits hp]</code></p>
+    <div class="math-block">
+        $$\begin{align}
+        \text{HP} \ll 0 &: \quad \underbrace{00\ 0000}_{\text{6 zeros}} \underbrace{11\ 0101\ 0010}_{\text{10 bits HP}} \\
+        \text{Mana} \ll 10 &: \quad \underbrace{10\ 1101}_{\text{6 bits Mana}} \underbrace{00\ 0000\ 0000}_{\text{10 zeros}}
+        \end{align}$$
+    </div>
+    
+    <div class="step-header">Step 3: Combined with OR</div>
+    <table class="binary-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Bits 15-10</th>
+                <th>Bits 9-0</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>HP &lt;&lt; 0</td>
+                <td>00 0000</td>
+                <td>11 0101 0010</td>
+            </tr>
+            <tr>
+                <td>Mana &lt;&lt; 10</td>
+                <td>10 1101</td>
+                <td>00 0000 0000</td>
+            </tr>
+            <tr style="border-top: 2px solid #333;">
+                <td><strong>OR result</strong></td>
+                <td><strong>10 1101</strong></td>
+                <td><strong>11 0101 0010</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="math-block">
+        $$\text{Packed} = 1011\ 0111\ 0101\ 0010_2 = \text{0xB752}$$
+    </div>
+    
+    <h3>Unpacking</h3>
+    
+    <p>To extract the values, we reverse the process with shifts and masks:</p>
+    
+    <div class="math-block">
+        $$\begin{align}
+        \text{HP} &= \text{Packed} \land \text{0x3FF} \\
+        &= \text{0xB752} \land \underbrace{00\ 0000\ 0011\ 1111\ 1111}_{\text{10 ones}} \\
+        &= 11\ 0101\ 0010_2 = 850_{10} \\[1em]
+        \text{Mana} &= \text{Packed} \gg 10 \\
+        &= 10\ 1101_2 = 45_{10}
+        \end{align}$$
+    </div>
+    
+    <h2>Booleans</h2>
+    
+    <p>Since memory is stored in 8-bit chunks, pretty much all programming languages also use 8 bits for a boolean. That's fine if you're looking to use them for computation, but not ideal if you just want to store them, or if you're sending them across the network.</p>
+    
+    <p>They're simple enough to bitpack though. In most programming languages, the two values they can take are:</p>
+    
+    <pre>True:  0000 0001
+False: 0000 0000</pre>
+    
+    <p>Just grab the least significant bit.</p>
+    
+    <h2>Floats</h2>
+    
+    <p>Unlike integers and booleans, which were pretty simple, floats are actually pretty complicated. I won't try to fully explain them here, others have done a better job at it.</p>
+    
+    <p>I'll point you to this blog-post series that goes in-depth on them: <a href="https://www.altdevarts.com/p/onboarding-floating-point">https://www.altdevarts.com/p/onboarding-floating-point</a></p>
+    
+    <p>And this neat little calculator that can help you visualize how the stored bit values correspond to actual values: <a href="https://www.h-schmidt.net/FloatConverter/IEEE754.html">https://www.h-schmidt.net/FloatConverter/IEEE754.html</a></p>
+    
+    <p>There's various formats you might use. They're made out of a few components:</p>
+    <ol>
+        <li>A sign bit. Simple enough</li>
+        <li>An exponent value</li>
+        <li>A mantissa value</li>
+        <li>And, inherent to the format, but not actually stored in the value: An exponent bias value</li>
+    </ol>
+    
+    <p>These days pretty much all CPU's you'd be writing for use IEEE754 floats. It uses:</p>
+    <ul>
+        <li>1 sign bit</li>
+        <li>8 exponent bits</li>
+        <li>23 mantissa bits</li>
+        <li>An exponent bias of -127</li>
+    </ul>
+    
+    <p>If you were to read your sign (S), your exponent (E), and your mantissa (M), here's how you'd calculate your actual float value from them in IEEE754:</p>
+    
+    <div class="math-block">
+        $$\text{value} = (-1)^S \times 2^{(E-127)} \times \left(1 + \frac{M}{2^{23}}\right)$$
+    </div>
+    
+    <p>Actually, the formula is different for a few special cases, which complicates things. Don't worry too much about that for now, but here they are:</p>
+    
+    <div class="math-block">
+        $$\text{value} = \begin{cases}
+        (-1)^S \times 0 & \text{if } E = 0, M = 0 \\
+        (-1)^S \times 2^{-126} \times \frac{M}{2^{23}} & \text{if } E = 0, M \neq 0 \\
+        (-1)^S \times 2^{(E-127)} \times \left(1 + \frac{M}{2^{23}}\right) & \text{if } 1 \leq E \leq 254 \\
+        (-1)^S \times \infty & \text{if } E = 255, M = 0 \\
+        \text{NaN} & \text{if } E = 255, M \neq 0
+        \end{cases}$$
+    </div>
+    
+    <p>The most important thing to grasp is that floats are represented by multiplying a power-of-two with a fraction. The exponential nature of storing the power-of-two is what gives floating-point numbers their ability to have flexible precision.</p>
+    
+    <p>The exponent picks a value range. The mantissa slices it into a fixed number of discrete values that we can represent. The smaller the exponent, the smaller the interval, the smaller the slices, and so the values we can represent are more fine-grained. As the exponent grows, our slices become less fine-grained, but we are able to represent exponentially larger values.</p>
+    
+    <p>With that understanding, we now have an idea for how we might bitpack floats. Fewer bits allocated to the mantissa means fewer slices on our interval, so less fine-grained values. Depending on how much precision we need, we might be able to cut some of mantissa bits!</p>
+    
+    <p>And, the fewer bits we allocate to the exponent, the fewer power-of-two intervals we can represent. While the amount of exponent bits we have determine how many powers-of-two we can represent and slice up, the bias allows us to choose <em>which</em> power-of-two intervals to represent. The IEEE754 bias is -127. That means the lowest value we can represent is 2^(-127)! (In practice it's 2^(-126) because of the special case for 0). That is a very small number, and one we might not actually need to represent.</p>
+    
+    <p>So, the difference between our min and max values determines how many exponent bits we need. The absolute value of our min and max values determine the exponent bias we need.</p>
+    
+    <p>With all of that, we can compute a custom format for each of our values, using the minimum number of bits necessary to represent values between our min and max values, and with our desired degree of precision.</p>
+    
+    <p>Here's some actual code showing how I compute that in my Mirror Fork:</p>
+    
+    <div class="code-block">
+        <div class="code-header">Float Format Computation (C#)</div>
+        <pre><code class="language-csharp">// === Compute the format
+BitpackingHelpers.DecimalFormatInfo format = new BitpackingHelpers.DecimalFormatInfo();
+format.Signed = (minValue < 0);
+format.MinPrecision = minPrecision;
+
+long maxExponent = BitpackingHelpers.FindNextPowerOf2Exponent(maxValue);
+long minExponent = BitpackingHelpers.FindPreviousPowerOf2Exponent(minPrecision);
+Debug.Assert(maxExponent >= minExponent);
+
+// This is the value encoded in our exponent for the lowest non-zero value we have to encode. 
+// Our bias offset cannot be greater than this or our bias conversion will underflow.
+long minPrecisionExponentValue = (BitpackingHelpers.SingleToInt32Bits((float)minPrecision) >> typeMantissaBits) 
+                                & (LongPow(2, typeExponentBits + 1) - 1);
+
+// This is the number of bits we need to represent the exponent range down from lowest 
+// non-zero value up to highest value
+ushort bitsToRepresentRange = (ushort)BitpackingHelpers.FindNextPowerOf2Exponent(maxExponent - minExponent);
+format.ExponentBits = Math.Min(typeExponentBits, (ushort)bitsToRepresentRange);
+
+// We pick a bias so that for our lowest non zero representable value, the exponent encoded 
+// value is 1. This leaves open the value 0 to represent... actual 0!
+// And also minimizes the amount of bits needed to encode our largest representable value.
+format.NewBias = typeBias - (int)minPrecisionExponentValue + 1;
+
+// As long as the mantissa is large enough to achieve our minimum precision for the highest 
+// exponent in value range, then it will also be enough for the lower exponent values.
+float HighestIntervalLength = MathF.Pow(2, maxExponent) - MathF.Pow(2, maxExponent - 1);
+format.MantissaBits = Math.Min(typeMantissaBits, 
+                              (ushort)BitpackingHelpers.FindNextPowerOf2Exponent(HighestIntervalLength / minPrecision));
+
+return format;</code></pre>
+    </div>
+    
+    <h2>Endianness</h2>
+    
+    <p>The order that bytes are stored in CPU's isn't the same across all architectures. Some will store the most significant byte first (known as big-endian), and others the least significant byte first (known as little-endian).</p>
+    
+    <p>Modern CPUs (x86, x64, ARM) are almost always little-endian. Certainly anything someone might be playing a video game on.</p>
+    
+    <p>In C#, you don't need to worry about this - the runtime handles byte ordering for primitive types. You only care when manually packing bytes for network protocols (which traditionally use big-endian). For our bitpacking, C# handles the byte ordering, so we don't need to worry about it.</p>
+    
+    <p>Still, here's an example for how endianness works:</p>
+    
+    <p>For a 16-bit value of 11:</p>
+    
+    <div class="math-block">
+        $$\text{Binary: } 00000000\ 00001011$$
+    </div>
+    
+    <p><strong>Big-endian</strong>: Most significant byte first</p>
+    
+    <div class="math-block">
+        $$\begin{align}
+        \text{Address:} &\quad \text{[0x00]} \quad\quad\quad \text{[0x01]} \\
+        \text{Value:} &\quad 00000000 \quad 00001011
+        \end{align}$$
+    </div>
+    
+    <p><strong>Little-endian</strong>: Least significant byte first</p>
+    
+    <div class="math-block">
+        $$\begin{align}
+        \text{Address:} &\quad \text{[0x00]} \quad\quad\quad \text{[0x01]} \\
+        \text{Value:} &\quad 00001011 \quad 00000000
+        \end{align}$$
+    </div>
+    
+    <h2>Turbo Mirror</h2>
+    
+    <p>I figured out all of the above work could be mostly automated away. I don't really want to be manually bitpacking things together when I'm working on a game. I'd much rather just provide some min, max, and precision values for each of my fields, and have that somehow Just Work.</p>
+    
+    <p>That's pretty much what I did with turbo mirror. As a user, you can just add some meta-data to your structs and individual fields. You provide your min, max, and precision values this way. The rest just works.</p>
+    
+    <div class="code-block">
+        <div class="code-header">Bitpacked Data Structure Example (C#)</div>
+        <pre><code class="language-csharp">[Bitpacked]
+public struct BitpackedExampleData
+{
+    // Floats and doubles - Each gets a custom float format for minimum serialized size 
+    // (custom exponent bits, exponent bias, mantissa bits, and sign bit)
+    [DecimalBitPacked(-10, 10, 0.5)] public float negativeFloat;        // -10 to 10 with 0.5 precision.
+    [DecimalBitPacked(0, 1000000, 1.0)] public float largeFloat;        // 0 to 1000000 with 1.0 precision.
+    [DecimalBitPacked(0, 1, 0.0001)] public float preciseFloat;         // 0 to 1 with 0.0001 precision (percentage-like)
+    [DecimalBitPacked(0, 1000000, 0.1)] public double largeDouble;      // 0 to 1000000 with 0.1 precision
+    [DecimalBitPacked(-1, 1, 0.0001)] public double preciseDouble;      // -1 to 1 with 0.0001 precision
+
+    // Integer tests with different ranges.
+    [IntegerBitPacked(0, 15)] public int smallInt;                      // 4 bits (0-15)
+    [IntegerBitPacked(0, 4095)] public int largeInt;                    // 12 bits (0-4095)
+    [IntegerBitPacked(-128, 127)] public int negativeInt;               // 8 bits signed (-128 to 127)
+    [IntegerBitPacked(0, 7)] public int tinyInt;                        // 3 bits (0-7)
+
+    // Booleans -> no attributes needed, always bitpacks to 1 bit.
+    public bool isActive;
+}</code></pre>
+    </div>
+    
+    <p>Under the hood, structs marked for bitpacking have custom readers and writers generated for them. IL code is generated for them and injected into the game's DLL.</p>
+    
+    <p>This implementation just sticks everything into an array of bytes, that Mirror then networks normally. There's some overhead in handling the byte boundaries, and all the bit-operations needed to bitpack, but it's mostly negligible. If bandwidth matters to your bottom-line, or to whether or not your players are able to play your game, then it's a very light cost to pay.</p>
+    
+    <p>It's an open-source fork of mirror, so you're free to use and modify it as needed!</p>
+    
+    <p style="text-align: center;"><a href="https://github.com/SavuGeorge/TurboMirror" style="display: inline-block; background: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0;">Check out TurboMirror on GitHub</a></p>
+    
+    </div>
+        </div>
+    </div>
+</body>
+</html>
