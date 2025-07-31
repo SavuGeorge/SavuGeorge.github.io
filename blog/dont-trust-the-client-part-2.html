@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Don't Trust The Client Part 2 - George B. Green's stuff</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            hljs.highlightAll();
+        });
+    </script>
+    <style>
+        body {
+            background-color: #eff4f7;
+            color: #333333;
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 1.2em;
+            margin: 0;
+            margin-top: 4.5em;
+            line-height: 1.6;
+        }
+        
+        @media screen and (max-device-width: 480px){
+            body{
+                font-size: 3em;	
+                margin-top: 0.4em;
+            }
+        }
+        
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            gap: 1.5em;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.6em 2em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+            border-radius: 0.4em;
+            transition: all 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+
+        .navbar a.active {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.15);
+            font-weight: 600;
+        }
+
+        @media screen and (max-device-width: 480px){
+            .navbar {
+                position: relative;
+                justify-content: center;
+                margin-bottom: 1em;
+                background: #ffffff;
+                backdrop-filter: none;
+                padding: 0.8em 1em;
+            }
+            
+            .navbar a {
+                font-size: 2em;
+                padding: 0.3em 0.6em;
+            }
+        }
+        
+        /* Layout */
+        .outer {
+            display: table;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+        .middle {
+            display: table-cell;
+            vertical-align: middle; 
+        }
+        .inner {
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        @media screen and (max-device-width: 480px){
+            .inner{
+                max-width: 100%;
+            }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        pre {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .example-box {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .good-practice {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .scenario {
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .highlight {
+            background: #ffffcc;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #eee;
+            margin: 40px 0;
+        }
+
+        .media-placeholder {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Links */
+        a {
+            color: #0056b3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color .3s ease;
+        }
+        a:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        /* Custom syntax highlighting adjustments */
+        .hljs {
+            background: #f8f8f8 !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="../index.html">Home</a>
+        <a href="./" class="active">Blog</a>
+        <a href="../performance.html">Performance Consulting</a>
+        <a href="../networking.html">Networking Consulting</a>
+    </nav>
+    
+    <div class="outer">
+        <div class="middle">
+            <div class="inner">
+                <h1>Don't Trust The Client Part 2<br><small style="font-size: 0.6em; font-weight: 400; color: #666;">Don't trust what you send</small></h1>
+
+                <div class="example-box">
+                    <p>This is the followup to my post about <a href="dont-trust-the-client.html">not trusting the data you receive from clients</a>.</p>
+                </div>
+
+                <p>What you can send over to the client depends a lot on your game design. For some games, all the gameplay information is supposed to be visible at all times for all clients. Take chess as an example: There's no hidden information, everything is known to both players.</p>
+
+                <p>However, in many games, information about the opponent is meant to be opaque. For example, a card game: You're not supposed to know what cards your opponent has in hand.</p>
+
+                <p>This is easy enough to engineer though. You just make sure each player only receives data about what is in their own hand. The only pitfall is accidentally sending everything to everyone, and then just hiding the opponents cards on the client-side logic.</p>
+
+
+
+                <h2>The Fog of War Problem</h2>
+
+                <p>There's more complicated examples though. Whenever there's data that can be known by the opponent, but only sometimes. For example: Any game with fog-of-war, like an RTS, or a MOBA. If an enemy unit isn't within your vision range, you don't know where they are and what they are doing.</p>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="./images/fogOfWar.webp" alt="Fog of war example in an RTS game" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                </div>
+
+                <p>If you're simply sending all unit positions and state to both clients, and doing something on the client-side to hide units in the fog-of-war, then that's a pretty easy exploit. It won't take much for someone to implement a full-vision map-hack.</p>
+
+                <p>One solution is to only send data about a unit to player A, when the server knows that unit is within player A's vision. This sort of thing works fine for turn-based games, but it comes with a very large downside in real-time games. <strong>Server-to-client latency!</strong></p>
+
+                <h2>Client Prediction vs Security</h2>
+
+                <p>Most real-time multiplayer games do some degree of client prediction — Meaning, they don't wait for the server to tell them about every single thing on the screen before they update state. If they did, everything would have more of a delay, and would feel sluggish. Instead of being instant, starting a movement would need to wait until your request reaches the server, the server processes it and send a message back, that message reaches your client, and finally your client processes it and renders a frame.</p>
+
+                <p>That time depends a lot on your ping, but for most games and most people it'll be at least a tenth of a second. Enough to feel sluggish and unresponsive.</p>
+
+                <p>Mechanics like fog-of-war have to deal with the same issue. Our two scenarios are:</p>
+
+                <div class="scenario">
+                    <h3>Scenario 1: Send All Data (Exploitable)</h3>
+                    <p><strong>Approach:</strong> We send all data about all unit positions to all clients. This is exploitable for map-hacks.</p>
+                    <p><strong>Upside:</strong> If I pass a corner, ending up in a position where I can see an enemy unit, I see that unit instantly. My client already knew that unit was there, I processed my movement on the client, and so I see the enemy unit right away.</p>
+                </div>
+
+                <div class="scenario">
+                    <h3>Scenario 2: Withhold Data (Secure but Laggy)</h3>
+                    <p><strong>Approach:</strong> We withhold data until the server knows we have vision of the unit. No map-hack possible, but...</p>
+                    <p><strong>Downside:</strong> If I pass a corner, ending up in a position I can see an enemy unit, there's a delay until the server processes my new position, notices that I can now see the enemy unit, sends that data back to me, and my client updates my vision with the new data. As a client I will experience the enemy unit popping into existence about a tenth of a second after I turn the corner, instead of being there right away.</p>
+                </div>
+
+                <h2>The Compromise Solution</h2>
+
+                <p>This is a pretty tough nut to crack. There's really no perfect solution. A reasonable solution trying to balance the two would be to send data for all units that are in vision, and all units that are <em>almost</em> in vision. It still kind of allows for a map-hack exploit, but a significantly weaker one.</p>
+
+                <p>The trade-off depends a lot on exactly how you define "almost in vision". A too-permissive definition still allows a map-hack exploiter to see enemy units a few seconds before an ambush. An insufficiently permissive definition defeats the purpose of the system, and maintains the popping into vision problem. The perfect balance depends a lot on the specific game its being built for. Most likely, there is not perfect solution.</p>
+
+                <h2>The Reality of Multiplayer Games</h2>
+
+                <p>If you look closely enough, all multiplayer games have a bunch of weird little edge cases in them. Artifacts of the engineer's struggle to balance responsiveness, latency, and security.</p>
+
+                <p>Most people won't notice them, at least not consciously, but they probably will notice them unconsciously. Despite that, we're all working with limited time and resources. We can't make everything perfect, even if it would be fun to do so.</p>
+
+                <div class="good-practice">
+                    <strong>Key Takeaway:</strong>
+                    <p>You don't have to be perfect about any of this. But you should always be thinking about it. Making compromises is fine, but they should be made deliberately, after understanding the problem and weighing the possibilities.</p>
+                </div>
+
+                <div class="warning-box">
+                    <strong>The Cost of Ignoring Security:</strong>
+                    <p>If you're always thinking about what could be exploited, you'll end up with a few potential exploits, and a few tradeoffs.</p>
+                    <p>If you're just worrying about getting the game working now, and hoping you'll patch security later, you'll end up with more security holes than you can count. Some of those security holes will end up being load-bearing for the rest of your code. You'll find yourself either stuck with broken systems, or forced to do significant rewrites.</p>
+                </div>
+
+                <br>
+
+                <p>So, try to keep security in mind as you're building your game, from day 1. It'll save you a lot of trouble in the long run.</p>
+
+                <hr>
+
+                <p><strong>Related Reading:</strong></p>
+                <ul>
+                    <li><a href="dont-trust-the-client.html">Don't Trust The Client Part 1</a> - Don't trust what you receive</li>
+                    <li><a href="lag-compensation.html">Lag Compensation</a> - For more about balancing latency and responsiveness</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

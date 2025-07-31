@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Don't Trust The Client Part 1 - George B. Green's stuff</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            hljs.highlightAll();
+        });
+    </script>
+    <style>
+        body {
+            background-color: #eff4f7;
+            color: #333333;
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 1.2em;
+            margin: 0;
+            margin-top: 4.5em;
+            line-height: 1.6;
+        }
+        
+        @media screen and (max-device-width: 480px){
+            body{
+                font-size: 3em;	
+                margin-top: 0.4em;
+            }
+        }
+        
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            gap: 1.5em;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.6em 2em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+            border-radius: 0.4em;
+            transition: all 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+
+        .navbar a.active {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.15);
+            font-weight: 600;
+        }
+
+        @media screen and (max-device-width: 480px){
+            .navbar {
+                position: relative;
+                justify-content: center;
+                margin-bottom: 1em;
+                background: #ffffff;
+                backdrop-filter: none;
+                padding: 0.8em 1em;
+            }
+            
+            .navbar a {
+                font-size: 2em;
+                padding: 0.3em 0.6em;
+            }
+        }
+        
+        /* Layout */
+        .outer {
+            display: table;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+        .middle {
+            display: table-cell;
+            vertical-align: middle; 
+        }
+        .inner {
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        @media screen and (max-device-width: 480px){
+            .inner{
+                max-width: 100%;
+            }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        pre {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .example-box {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .exploit-example {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .good-practice {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .highlight {
+            background: #ffffcc;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #eee;
+            margin: 40px 0;
+        }
+
+        /* Links */
+        a {
+            color: #0056b3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color .3s ease;
+        }
+        a:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        /* Custom syntax highlighting adjustments */
+        .hljs {
+            background: #f8f8f8 !important;
+        }
+
+        .message-example {
+            font-family: 'Monaco', 'Consolas', monospace;
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="../index.html">Home</a>
+        <a href="./" class="active">Blog</a>
+        <a href="../performance.html">Performance Consulting</a>
+        <a href="../networking.html">Networking Consulting</a>
+    </nav>
+    
+    <div class="outer">
+        <div class="middle">
+            <div class="inner">
+                <h1>Don't Trust The Client Part 1<br><small style="font-size: 0.6em; font-weight: 400; color: #666;">Don't trust what you receive</small></h1>
+
+                <p>Pop quiz! You're implementing a shop in a server authoritative multiplayer game. There's multiple items the player can buy, each with different prices. The player selects an item to purchase:</p>
+
+                <div class="example-box">
+                    <strong>Item Selection:</strong><br>
+                    Name: Brown Boots<br>
+                    Item ID: 42<br>
+                    Price: 450 gold
+                </div>
+
+                <div class="example-box">
+                    <strong>Player Data:</strong><br>
+                    Name: Bob<br>
+                    Player ID: 3<br>
+                    Current Gold: 500
+                </div>
+
+                <p>As the player selects their item, a network message goes out from the client to the server. What data do you include in that message?</p>
+
+                <p>The most straightforward thing you could do is:</p>
+
+                <div class="message-example">
+Item ID: 42<br>
+Price: 450<br>
+Player ID: 3
+                </div>
+
+                <p>Simple enough! Receive the data on the server, add ItemID to PlayerID's inventory, lower their gold by Price. Easy enough to implement.</p>
+
+                <h2>First Exploit: Price Tampering</h2>
+
+                <p>Now, of course, we shouldn't include the Price in the network message. If we do, the client could simply send us a tampered request like:</p>
+
+                <div class="exploit-example">
+                    <strong>Exploit #1 - Free Items:</strong>
+                    <div class="message-example">
+Item ID: 42<br>
+Price: 0<br>
+Player ID: 3
+                    </div>
+                    <p>Free brown boots! Perhaps they can even send in a negative Price value.</p>
+                </div>
+
+                <div class="exploit-example">
+                    <strong>Exploit #1b - Getting Paid:</strong>
+                    <div class="message-example">
+Item ID: 42<br>
+Price: -9000<br>
+Player ID: 3
+                    </div>
+                    <p>That's an even better deal, you're paying them to take the brown boots off your hands. Now that's a business plan!</p>
+                </div>
+
+                <p>So, let's get rid of the price. On the server, we will just use our Item ID to retrieve the full data for the item, including its price. A little bit more work, but we've removed a giant exploit.</p>
+
+                <div class="good-practice">
+                    <strong>Improved Message:</strong>
+                    <div class="message-example">
+Item ID: 42<br>
+Player ID: 3
+                    </div>
+                </div>
+
+                <h2>Second Exploit: Player ID Manipulation</h2>
+
+                <p>However, the sneaky client can still perform an exploit. Free items aren't a thing anymore, but player 3 can now send this message:</p>
+
+                <div class="exploit-example">
+                    <strong>Exploit #2 - Forcing Other Players to Buy:</strong>
+                    <div class="message-example">
+Item ID: 42<br>
+Player ID: 7
+                    </div>
+                    <p>Any player can get any other player to purchase any item! Just tamper the Player ID, and you can get some unlucky schmuck on the enemy team to buy several useless brown boots, depleting all his gold in the process.</p>
+                </div>
+
+                <p>So, well, we scratch that too. But if our network message only has the itemID, how do we know which player to give the item to? Well, the answer is more work on our part!</p>
+
+                <p>When players connect to the game, we will need to associate each connection with a corresponding player. Then, when we receive our purchase message, we determine the PlayerID of the sender based on what connection the message came from. This is a non-trivial identity/authentication problem, but you'll most likely be using a library that solves it for you. <a href="https://github.com/MirrorNetworking/Mirror">Mirror for Unity</a> is what I use.</p>
+
+                <div class="good-practice">
+                    <strong>Final Message Format:</strong>
+                    <div class="message-example">
+Item ID: 42
+                    </div>
+                    <p>Player identity determined server-side from connection context.</p>
+                </div>
+
+                <h2>Third Exploit: Invalid Item IDs</h2>
+
+                <p>Well, that's even more complicated than what we started from, but at least now we should be good. We have a minimal network message. Surely this is foolproof. Well... Almost, but not quite there. Our network message is indeed as minimal as it can get, there's nothing else we can remove. But, while we do need <em>some</em> itemID from the client, we can't really trust that it is a correct itemID. The client tries these messages:</p>
+
+                <div class="exploit-example">
+                    <strong>Exploit #3 - Invalid IDs:</strong>
+                    <div class="message-example">
+Item ID: 9999999999
+                    </div>
+                    <p>Uh oh, our item ID's only go up to 512. We take the itemID, try to retrieve our corresponding item. It doesn't exist. Our server crashes.</p>
+                </div>
+
+                <p>We add a check to make sure the provided ID is not out of bounds.</p>
+
+                <h2>Fourth Issue: Missing Gameplay Validation</h2>
+
+                <p>Client sends:</p>
+
+                <div class="message-example">
+Item ID: 42
+                </div>
+
+                <p>Finally a valid item! But, turns out the client has 0 gold. We have a check on the client graying out the button for items that the player can't afford, but Bob is obviously not stopped by that. We never added a check on the server to check if the player actually has enough gold, so Bob gets the item and has his gold value set to -450. Being broke doesn't matter if you can go into infinite debt.</p>
+
+                <p>We should also probably check if the player has free item slots, if the player is in range of a shop, every single gameplay condition. <strong> Once on the client to set UI state. Once on the server to verify against cheaters. </strong></p>
+
+                <h2>Fifth Issue: Rate Limiting</h2>
+
+                <p>So we patch all that as well. Minimal data. Valid ID. Gameplay conditions met. Phew.</p>
+
+                <p>Client sends:</p>
+
+                <div class="message-example">Item ID: 42</div>
+
+                <p>And then does it again. And again. <strong>One hundred thousand times per second.</strong> Our server crashes. We implement rate limiting to disconnect spamming players.</p>
+
+                <h2>General Rules</h2>
+
+                <p>Now, we have to repeat the same process for every single message the client sends to the server. There's no silver bullet, and you'll need to consider each case individually, but there are some rules of thumb that we've applied here:</p>
+
+                <div class="good-practice">
+                    <strong>Rule #1: Minimal Data</strong>
+                    <p>Take exactly as much data as you need from the client and no more. In practice, this should always consist of data communicating 'intention'.</p>
+                    <ul>
+                        <li>I want to buy this item</li>
+                        <li>I want to walk to this position</li>
+                        <li>I want to use this ability</li>
+                    </ul>
+                </div>
+
+                <div class="good-practice">
+                    <strong>Rule #2: Validate Everything</strong>
+                    <p>Check the validity of all the data you do receive. Do you have enough gold to buy this item? Is the position you want to walk to actually somewhere you can navigate to? Is the ability you want to use off cooldown, and do you have enough mana?</p>
+                    <p><strong>In practice, this almost always means you have to do the validity check twice:</strong> Once on the client to set UI state, and once on the server to prevent tampering from cheaters.</p>
+                </div>
+
+                <h2>Testing for Exploits</h2>
+
+                <p>A useful trick for the second point is to design your UI and logic with a debug always-on setting in mind. When enabled, you should have all of your buttons and inputs be allowed, at all times. This lets you easily simulate what a cheating client would do, and is helpful in finding exploits you've missed.</p>
+
+                <p>In general, you should aim to design your own cheats where possible. It doesn't take too much work to hard-code a few tampered requests you can send whenever you want.</p>
+
+                <hr>
+
+                <p>So that's that for data we receive from the client. Unfortunately, that's just half the work. We also have to worry about what we are sending to the client.</p>
+
+                <p>I cover that in <a href="dont-trust-the-client-part-2.html">part 2</a>.</p>
+
+                <hr>
+
+                <p><strong>Links:</strong></p>
+                <ul>
+                    <li><a href="https://github.com/MirrorNetworking/Mirror">Mirror Networking</a></li>
+                    <li><a href="https://github.com/SavuGeorge/TurboMirror">TurboMirror</a> - my own fork of Mirror with some added features</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
