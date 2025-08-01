@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why you should profile your game early - George B. Green's stuff</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            hljs.highlightAll();
+        });
+    </script>
+    <style>
+        body {
+            background-color: #eff4f7;
+            color: #333333;
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 1.2em;
+            margin: 0;
+            margin-top: 4.5em;
+            line-height: 1.6;
+        }
+        
+        @media screen and (max-device-width: 480px){
+            body{
+                font-size: 3em;	
+                margin-top: 0.4em;
+            }
+        }
+        
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            gap: 1.5em;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.6em 2em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+            border-radius: 0.4em;
+            transition: all 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+
+        .navbar a.active {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.15);
+            font-weight: 600;
+        }
+
+        @media screen and (max-device-width: 480px){
+            .navbar {
+                position: relative;
+                justify-content: center;
+                margin-bottom: 1em;
+                background: #ffffff;
+                backdrop-filter: none;
+                padding: 0.8em 1em;
+            }
+            
+            .navbar a {
+                font-size: 2em;
+                padding: 0.3em 0.6em;
+            }
+        }
+        
+        /* Layout */
+        .outer {
+            display: table;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+        .middle {
+            display: table-cell;
+            vertical-align: middle; 
+        }
+        .inner {
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        @media screen and (max-device-width: 480px){
+            .inner{
+                max-width: 100%;
+            }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        pre {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .quote-box {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+            font-style: italic;
+            line-height: 1.8;
+        }
+        
+        .quote-box p {
+            margin-bottom: 1em;
+        }
+        
+        .quote-box p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .category-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        
+        .category-box h4 {
+            color: #495057;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .tool-section {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        
+        .tool-section h4 {
+            color: #155724;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            background: #ffffcc;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #eee;
+            margin: 40px 0;
+        }
+
+        /* Links */
+        a {
+            color: #0056b3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color .3s ease;
+        }
+        a:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        /* Custom syntax highlighting adjustments */
+        .hljs {
+            background: #f8f8f8 !important;
+        }
+        
+        .tool-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="../index.html">Home</a>
+        <a href="./" class="active">Blog</a>
+        <a href="../performance.html">Performance Consulting</a>
+        <a href="../networking.html">Networking Consulting</a>
+    </nav>
+    
+    <div class="outer">
+        <div class="middle">
+            <div class="inner">
+                <h1>Why you should profile your game early</h1>
+
+                <p>I think a lot of devs think of profiling and performance optimization as something you do once, towards the very end of development. People love the quote "Premature optimization is the root of all evil".</p>
+
+                <p>The source of the quote is Donald Knuth's 1974 paper <a href="https://pic.plover.com/knuth-GOTO.pdf">"Structured Programming with go to Statements"</a>. You've maybe heard of Knuth before as the author of "The Art Of Computer Programming" book series. Smart guy, if he said it, surely he's right!</p>
+
+                <p>Well, I do think he's right. But that quote isn't actually what he said. It's part of a larger, and more nuanced statement. The usual, a short punchy sentence with an extreme conclusion is much better at spreading than a full and nuanced paragraph. Knuth's paper is lengthy and talks about a lot of other things, so I'll spare you the trouble and show you what I think is the most important context:</p>
+
+                <div class="quote-box">
+                    <p>"There is no doubt that the grail of efficiency leads to abuse. Programmers waste enormous amounts of time thinking about, or worrying about, the speed of noncritical parts of their programs, and these attempts at efficiency actually have a strong negative impact when debugging and maintenance are considered.</p>
+                    
+                    <p>We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. <strong>Yet we should not pass up our opportunities in that critical 3%.</strong></p>
+                    
+                    <p>A good programmer will not be lulled into complacency by such reasoning, <strong>he will be wise to look carefully at the critical code; but only after that code has been identified.</strong> It is often a mistake to make a priori judgments about what parts of a program are really critical, since the universal experience of programmers who have been using measurement tools has been that their intuitive guesses fail.</p>
+                    
+                    <p>After working with such tools for seven years, <strong>I've become convinced that all compilers written from now on should be designed to provide all programmers with feedback indicating what parts of their programs are costing the most</strong>; indeed, this feedback should be supplied automatically unless it has been specifically turned off."</p>
+                </div>
+
+                <p>A very different idea! 97% of code ends up being irrelevant to performance. <strong>BUT</strong> there's a critical 3% that matters a lot to performance, and needs to be optimized. The programmer's job is to analyze their program as they are writing it, keeping in mind which parts are critical to performance.</p>
+
+                <p>In this view, "premature optimization" definitely doesn't mean "profile and optimize your software somewhere towards the end of development". It means "don't optimize before you profile".</p>
+
+                <p>That doesn't necessarily mean you need to optimize every slow hot-path that you find, but it does mean you should at least consider it. I'd break it down into these categories:</p>
+
+                <div class="category-box">
+                    <h4>1) Code that is not very relevant to bottom line performance</h4>
+                    <p>Stuff that happens on a light workload, or is far from any code hot-paths. The 97% of stuff that doesn't matter that much. Generally don't worry about these.</p>
+                </div>
+
+                <div class="category-box">
+                    <h4>2) Code that is relevant to bottom line performance, and is foundational</h4>
+                    <p>By "foundational" I mean "is this a module of code that the rest of the program is built on top of". Something that, if you had to majorly rewrite it in the future, you would be forced to also majorly rewrite things built on top of it. A good example is your entity system in a game, and how you handle the memory of your entities. If you need to rewrite something like this late into development you'll have to rewrite half your project with it.</p>
+                    <p>For foundational code like this, worry about performance very early on. It's fine to have a prototype phase where you do something quick and easy to explore some gameplay ideas. But once you decide on turning your prototype into a real thing, scrap the prototype and build a solid foundation instead.</p>
+                </div>
+
+                <div class="category-box">
+                    <h4>3) Code that is relevant to bottom line performance, but isn't foundational</h4>
+                    <p>These are expensive systems that happen to be "leaf" nodes in your software. No other major systems depend on them. Alternatively, if other systems do depend on them, they happen to be very modular systems, where implementation can get swapped out easily without changing the way they interface with other systems.</p>
+                    <p>These are systems where you can wait and see. For games in particular, I think you <em>should</em> wait and see. Games have particularly volatile structure across development. Features get built and scrapped and revamped. Because of that volatility, it makes a lot more sense to optimize later on. Time spent optimizing a system that ultimately gets scrapped, is time wasted.</p>
+                </div>
+
+                <p>It's important to note, that code might change categories over time. If your design evolves sufficiently, something in category 3 might go into category 2. Something from 1 might evolve into something from 3. This is part of why it's important to profile as you go. If you've profiled, you will notice when something from category 3 is shifting into 2, and you'll be able to act accordingly. If you haven't profiled, you'll do that change blindly, and you'll miss the ship for optimizing what is now a foundational module.</p>
+
+                <h2>Performance Budget Management</h2>
+
+                <p>Beyond all of the above, there's another reason why you should be profiling as you go. For most software, you likely have a certain compute budget you have to stay within. The common case for games is wanting to stay within 60fps for all target platforms, or at the very least 30fps.</p>
+
+                <p>That gives you a hard limit on the resources you have to work with. Profiling on your target hardware as you go lets you know how much you've spent of that. Knowing roughly what systems you could optimize, and by roughly how much, lets you know how much you could free from your existing budget by doing an optimization pass.</p>
+
+                <p>That's important information to keep in mind whenever you're considering adding a new system, or expanding an existing one. Spending time on building some new expensive gameplay system might be cool, but you should probably shy away from it if you know you're already nearing the limit of your CPU performance budget. Some cool new post-processing stack might also be something nice to add, but you should avoid it if your GPU performance budget is almost finished, with few actionable optimizations left in sight.</p>
+
+                <p>Conversely, if you're close to your limit but know there are plenty of optimizations you can make, the above features once again become a possibility.</p>
+
+                <p>That's hopefully enough work trying to convince you. Let's move on to some practical stuff. How do you actually profile your game? Donald Knuth probably built his own tools to profile his software. We can be a bit lazier today, there's existing tools we can use, and they're pretty good.</p>
+
+                <h2>Unity Profiling</h2>
+
+                <p>Most Unity users are probably familiar by now with a couple of the in-built profiling tools. Maybe the main "Unity Profiler". Maybe the "Frame Debugger" as well. There's more of them, although lesser known. I think they can be a good bit more useful than their more popular brothers.</p>
+
+                <p>There's also third party, non-unity specific tools you can use. Those too, I think are often more useful than the stock unity tooling.</p>
+
+                <p>The below section isn't really meant to be a tutorial. It's meant to be a quick entry-point to learn about what tools are available, and what you might use them for. Once you pick one out, you'll find documentation and tutorials to learn the ropes.</p>
+
+                <p>I won't cover every tool under the sun either, just some of the things I've found use for. I also won't cover any console-specific, or mobile-specific tools. The unity docs have a useful page covering more of these: <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/performance-profiling-tools.html">Performance profiling tools</a>.</p>
+
+                <div class="tool-section">
+                    <h4>1. <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/Profiler.html">Unity Profiler</a></h4>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./images/unity-profiler.avif" alt="Unity Profiler interface" class="tool-image">
+                    </div>
+                    <p>The basic package! It can get you quite far on its own. I would say this should be your starting point for most profiling. It'll give you a decent overview of everything your game is doing. You can get a starting view of your CPU performance, with breakdowns of your own scripts and unity systems, it'll tell you a bit about rendering, and a bit about memory. Deep profiling mode gives some more detail as well.</p>
+                    <p>It often won't have all the details you need when digging down to actually optimize things, but it will tell you enough to know what to look for with one of the more specific tools.</p>
+                </div>
+
+                <div class="tool-section">
+                    <h4>2. <a href="https://docs.unity3d.com/6000.1/Documentation/Manual/FrameDebugger-landing.html">Frame Debugger</a></h4>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./images/frame-debugger.jpg" alt="Unity Frame Debugger interface" class="tool-image">
+                    </div>
+                    <p>A staple for rendering analysis. Lets you step through draw calls one by one, watching your frame being built step by step. If your batching is broken, this is where you'll first notice that. If your models are weird and being constructed out of 500 separate draw calls, this is where you'll notice that.</p>
+                </div>
+
+                <div class="tool-section">
+                    <h4>3. <a href="https://docs.unity3d.com/Packages/com.unity.memoryprofiler@1.1/manual/index.html">Memory Profiler</a></h4>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./images/memory-profiler.png" alt="Unity Memory Profiler interface" class="tool-image">
+                    </div>
+                    <p>Offers a lot more detail than the in-built profiler about what your memory is doing. Very useful for debugging memory leaks as well. There's a good chance it won't be able to track every single chunk of memory you're using, but it should get you pretty far.</p>
+                </div>
+
+                <div class="tool-section">
+                    <h4>4. <a href="https://docs.unity3d.com/Packages/com.unity.performance.profile-analyzer@1.2/manual/index.html">Profile Analyzer</a></h4>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./images/profile-analyzer.png" alt="Unity Profile Analyzer interface" class="tool-image">
+                    </div>
+                    <p>At some point you'll likely have to deal with frame spikes. Most of your frames are good, but some are slow for some reason. The profile analyzer is built around contrasting and aggregating data about multiple frames. This is very useful when trying to find inefficiencies that only happen sometimes.</p>
+                </div>
+
+                <div class="tool-section">
+                    <h4>5. <a href="https://github.com/baldurk/renderdoc">RenderDoc</a></h4>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./images/render-doc.jpg" alt="Render-doc" class="tool-image">
+                    </div>
+                    <p>The unity frame debugger is a good starting point, but one thing it doesn't do is estimate cost of individual draw calls. RenderDoc does that, and in general allows you to dig a lot deeper into what the GPU is doing at each draw call. If you're still GPU bottlenecked after cutting out unnecessary draw calls and obvious fluff, this is what you can use to optimize further. It's open source under the MIT license as well. Great tool!</p>
+                </div>
+
+                <p>There's a lot of other tools out there, including some good paid ones like Superluminal. The above are likely enough to find the important issues in your game, if used well. Once you get the hang of it, it won't take you that much time to use them periodically and check in on your performance. It'll save you a lot of trouble in the long run.</p>
+
+                <hr>
+
+                <p><strong>Links:</strong></p>
+                <ul>
+                    <li><a href="https://pic.plover.com/knuth-GOTO.pdf">Donald Knuth's "Structured Programming with go to Statements"</a></li>
+                    <li><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/performance-profiling-tools.html">Unity Performance Profiling Tools</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
