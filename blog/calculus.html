@@ -85,6 +85,13 @@
             color: #666;
             font-weight: 500;
         }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
+        }
 
         .reset-button {
             background: #4a90e2;
@@ -238,7 +245,8 @@
                         deltaTime: true,
                         speed: true,
                         acceleration: false,
-                        reset: true
+                        reset: true,
+                        truncation: false // Add truncation control flag
                     },
                     initialValues: {
                         deltaTime: 16,
@@ -329,6 +337,18 @@
                             <label for="${this.containerId}-acceleration">Acceleration</label>
                             <input type="range" id="${this.containerId}-acceleration" min="100" max="600" value="${this.config.initialValues.acceleration}" step="50">
                             <div class="value-display"><span id="${this.containerId}-accelerationValue">${this.config.initialValues.acceleration}</span> units/s²</div>
+                        </div>
+                    `);
+                }
+                
+                if (this.config.controls.truncation) {
+                    controls.push(`
+                        <div class="control-group">
+                            <label for="${this.containerId}-truncation">Truncate Bounce</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="${this.containerId}-truncation">
+                            </div>
+                            <div class="value-display">&nbsp;</div>
                         </div>
                     `);
                 }
@@ -429,6 +449,7 @@
                     dtSlider: document.getElementById(`${this.containerId}-deltaTime`),
                     speedSlider: document.getElementById(`${this.containerId}-speed`),
                     accelerationSlider: document.getElementById(`${this.containerId}-acceleration`),
+                    truncationCheckbox: document.getElementById(`${this.containerId}-truncation`),
                     dtValue: document.getElementById(`${this.containerId}-dtValue`),
                     fpsValue: document.getElementById(`${this.containerId}-fpsValue`),
                     speedValue: document.getElementById(`${this.containerId}-speedValue`),
@@ -552,13 +573,23 @@
 
             handleBounce(ballType) {
                 const state = this.ballStates[ballType];
+                const truncateBounce = this.elements.truncationCheckbox && this.elements.truncationCheckbox.checked;
+                
                 if (state.y <= 0) {
-                    const overshoot = -state.y;  // How far past 0 we went
-                    state.y = overshoot;  // Reflect back by that amount
+                    if (truncateBounce) {
+                        state.y = 0;
+                    } else {
+                        const overshoot = -state.y;
+                        state.y = overshoot;
+                    }
                     state.direction = 1;
                 } else if (state.y >= this.bounceHeight) {
-                    const overshoot = state.y - this.bounceHeight;  // How far past boundary we went
-                    state.y = this.bounceHeight - overshoot;  // Reflect back by that amount
+                    if (truncateBounce) {
+                        state.y = this.bounceHeight;
+                    } else {
+                        const overshoot = state.y - this.bounceHeight;
+                        state.y = this.bounceHeight - overshoot;
+                    }
                     state.direction = -1;
                 }
             }
@@ -566,14 +597,14 @@
             handleAccelerationBounce(ballType) {
                 const state = this.ballStates[ballType];
                 if (state.y <= 0 && state.velocity < 0) {
-                    const overshoot = -state.y;  // How far past 0 we went
-                    state.y = overshoot;  // Reflect position
-                    state.velocity = 0;   // Reset velocity for acceleration from rest
+                    const overshoot = -state.y;
+                    state.y = overshoot;
+                    state.velocity = 0;
                     state.direction = 1;
                 } else if (state.y >= this.bounceHeight && state.velocity > 0) {
-                    const overshoot = state.y - this.bounceHeight;  // How far past boundary we went
-                    state.y = this.bounceHeight - overshoot;  // Reflect position
-                    state.velocity = 0;   // Reset velocity for acceleration from rest
+                    const overshoot = state.y - this.bounceHeight;
+                    state.y = this.bounceHeight - overshoot;
+                    state.velocity = 0;
                     state.direction = -1;
                 }
             }
@@ -583,13 +614,11 @@
                     this.lastTime = currentTime;
                 }
                 
-                const frameTime = Math.min(currentTime - this.lastTime, 100); // Cap at 100ms to prevent spiral
+                const frameTime = Math.min(currentTime - this.lastTime, 100);
                 this.lastTime = currentTime;
                 
-                // Accumulate time for main balls
                 this.accumulator += frameTime;
                 
-                // Process fixed timesteps for main balls
                 while (this.accumulator >= this.targetDeltaTime) {
                     const normalBalls = ['blue', 'red', 'green', 'purple'].filter(b => this.config.balls[b]);
                     if (normalBalls.length > 0) {
@@ -598,10 +627,8 @@
                     this.accumulator -= this.targetDeltaTime;
                 }
                 
-                // Accumulate time for reference balls
                 this.refAccumulator += frameTime;
                 
-                // Process fixed timesteps for reference balls at 60 FPS
                 while (this.refAccumulator >= this.referenceDeltaTime) {
                     const refBalls = ['blueRef', 'redRef', 'greenRef', 'purpleRef'].filter(b => this.config.balls[b]);
                     if (refBalls.length > 0) {
@@ -639,7 +666,6 @@
                         this.elements.balls[ballType].style.top = '50px';
                     }
                 });
-                // Reset accumulators to ensure clean state
                 this.accumulator = 0;
                 this.refAccumulator = 0;
             }
@@ -658,7 +684,14 @@
 
         // Create the original visualization (unchanged behavior)
         const viz1 = new DeltaTimeVisualization('viz1-container', {
-            title: 'DeltaTime Visualization - Constant Velocity'
+            title: 'DeltaTime Visualization - Constant Velocity',
+            controls: {
+                deltaTime: true,
+                speed: true,
+                acceleration: false,
+                reset: true,
+                truncation: true // Enable the truncation checkbox for this visualization
+            }
         });
 
         // Create a second visualization with acceleration
@@ -678,7 +711,8 @@
                 deltaTime: true,
                 speed: false,
                 acceleration: true,
-                reset: true
+                reset: true,
+                truncation: false // Keep truncation off for the second visualization
             },
             initialValues: {
                 deltaTime: 33,
