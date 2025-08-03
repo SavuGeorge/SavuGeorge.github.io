@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeltaTime Visualization</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #eff4f7;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto 40px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #34495e;
+            font-size: 14px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+            border: none;
+        }
+
+        .value-display {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .reset-button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .reset-button:hover {
+            background: #357abd;
+            transform: translateY(-1px);
+        }
+
+        .reset-button:active {
+            transform: translateY(0);
+        }
+
+        .visualization {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            height: 400px;
+            position: relative;
+            background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+            overflow: hidden;
+        }
+
+        .ball {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            transition: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .ball-blue {
+            background: #3498db;
+            left: 100px;
+        }
+
+        .ball-blue-ref {
+            background: rgba(52, 152, 219, 0.4);
+            left: 140px;
+        }
+
+        .ball-red {
+            background: #e74c3c;
+            left: 200px;
+        }
+
+        .ball-red-ref {
+            background: rgba(231, 76, 60, 0.4);
+            left: 240px;
+        }
+
+        .ball-green {
+            background: #27ae60;
+            left: 300px;
+        }
+
+        .ball-green-ref {
+            background: rgba(39, 174, 96, 0.4);
+            left: 340px;
+        }
+
+        .ball-purple {
+            background: #9b59b6;
+            left: 400px;
+        }
+
+        .ball-purple-ref {
+            background: rgba(155, 89, 182, 0.4);
+            left: 440px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .blue { background: #3498db; }
+        .red { background: #e74c3c; }
+        .green { background: #27ae60; }
+        .purple { background: #9b59b6; }
+
+        .info-box {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .visualization {
+                height: 300px;
+            }
+            
+            .ball {
+                width: 25px;
+                height: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="viz1-container"></div>
+    <div id="viz2-container"></div>
+
+    <script>
+        class DeltaTimeVisualization {
+            constructor(containerId, config = {}) {
+                this.containerId = containerId;
+                this.config = {
+                    title: 'DeltaTime Visualization',
+                    balls: {
+                        blue: true,
+                        blueRef: true,
+                        red: true,
+                        redRef: true,
+                        green: false,
+                        greenRef: false,
+                        purple: false,
+                        purpleRef: false
+                    },
+                    controls: {
+                        deltaTime: true,
+                        speed: true,
+                        acceleration: false,
+                        reset: true
+                    },
+                    initialValues: {
+                        deltaTime: 16,
+                        speed: 5,
+                        acceleration: 300
+                    },
+                    ...config
+                };
+
+                this.initializeState();
+                this.createHTML();
+                this.bindEvents();
+                this.startAnimation();
+            }
+
+            initializeState() {
+                this.animationId = null;
+                this.lastTime = 0;
+                this.accumulator = 0;        // Accumulator for main balls
+                this.refAccumulator = 0;     // Accumulator for reference balls
+                this.ballStates = {};
+                
+                // Initialize state for each ball type
+                ['blue', 'blueRef', 'red', 'redRef', 'green', 'greenRef', 'purple', 'purpleRef'].forEach(ballType => {
+                    if (this.config.balls[ballType]) {
+                        this.ballStates[ballType] = {
+                            y: 50,
+                            velocity: 0,
+                            direction: 1  // 1 for down, -1 for up
+                        };
+                    }
+                });
+                
+                this.targetDeltaTime = this.config.initialValues.deltaTime;
+                this.speed = this.config.initialValues.speed;
+                this.acceleration = this.config.initialValues.acceleration;
+                this.referenceDeltaTime = 1000 / 60; // Exact 60 FPS (16.666...)
+                this.ballSize = 30;
+                this.bounceHeight = 350;
+            }
+
+            createHTML() {
+                const container = document.getElementById(this.containerId);
+                if (!container) {
+                    throw new Error(`Container with id "${this.containerId}" not found`);
+                }
+
+                container.className = 'container';
+                container.innerHTML = `
+                    <h1>${this.config.title}</h1>
+                    ${this.createControlsHTML()}
+                    <div class="visualization" id="${this.containerId}-viz">
+                        ${this.createBallsHTML()}
+                    </div>
+                    ${this.createLegendHTML()}
+                    ${this.createInfoBox()}
+                `;
+
+                this.cacheElements();
+            }
+
+            createControlsHTML() {
+                const controls = [];
+                
+                if (this.config.controls.deltaTime) {
+                    controls.push(`
+                        <div class="control-group">
+                            <label for="${this.containerId}-deltaTime">Frame Time (DT)</label>
+                            <input type="range" id="${this.containerId}-deltaTime" min="8" max="100" value="${this.config.initialValues.deltaTime}" step="1">
+                            <div class="value-display"><span id="${this.containerId}-dtValue">${this.config.initialValues.deltaTime}</span>ms (<span id="${this.containerId}-fpsValue">${(1000/this.config.initialValues.deltaTime).toFixed(1)}</span> FPS)</div>
+                        </div>
+                    `);
+                }
+
+                if (this.config.controls.speed) {
+                    controls.push(`
+                        <div class="control-group">
+                            <label for="${this.containerId}-speed">Speed</label>
+                            <input type="range" id="${this.containerId}-speed" min="1" max="10" value="${this.config.initialValues.speed}" step="0.5">
+                            <div class="value-display"><span id="${this.containerId}-speedValue">${this.config.initialValues.speed}</span> units/sec</div>
+                        </div>
+                    `);
+                }
+
+                if (this.config.controls.acceleration) {
+                    controls.push(`
+                        <div class="control-group">
+                            <label for="${this.containerId}-acceleration">Acceleration</label>
+                            <input type="range" id="${this.containerId}-acceleration" min="100" max="600" value="${this.config.initialValues.acceleration}" step="50">
+                            <div class="value-display"><span id="${this.containerId}-accelerationValue">${this.config.initialValues.acceleration}</span> units/s²</div>
+                        </div>
+                    `);
+                }
+
+                if (this.config.controls.reset) {
+                    controls.push(`
+                        <div class="control-group">
+                            <label>&nbsp;</label>
+                            <button class="reset-button" id="${this.containerId}-reset">Reset Positions</button>
+                            <div class="value-display">&nbsp;</div>
+                        </div>
+                    `);
+                }
+
+                return controls.length > 0 ? `<div class="controls">${controls.join('')}</div>` : '';
+            }
+
+            createBallsHTML() {
+                const balls = [];
+                const ballTypes = ['blue', 'blueRef', 'red', 'redRef', 'green', 'greenRef', 'purple', 'purpleRef'];
+                
+                ballTypes.forEach(ballType => {
+                    if (this.config.balls[ballType]) {
+                        const className = ballType.includes('Ref') ? 
+                            `ball-${ballType.replace('Ref', '')}-ref` : 
+                            `ball-${ballType}`;
+                        balls.push(`<div class="ball ${className}" id="${this.containerId}-${ballType}Ball"></div>`);
+                    }
+                });
+
+                return balls.join('');
+            }
+
+            createLegendHTML() {
+                const legendItems = [];
+                
+                if (this.config.balls.blue) {
+                    legendItems.push(`
+                        <div class="legend-item">
+                            <div class="legend-color blue"></div>
+                            <span>Blue: Constant speed</span>
+                        </div>
+                    `);
+                }
+                
+                if (this.config.balls.red) {
+                    legendItems.push(`
+                        <div class="legend-item">
+                            <div class="legend-color red"></div>
+                            <span>Red: Speed × DT</span>
+                        </div>
+                    `);
+                }
+                
+                if (this.config.balls.green) {
+                    legendItems.push(`
+                        <div class="legend-item">
+                            <div class="legend-color green"></div>
+                            <span>Green: Accel × DT</span>
+                        </div>
+                    `);
+                }
+                
+                if (this.config.balls.purple) {
+                    legendItems.push(`
+                        <div class="legend-item">
+                            <div class="legend-color purple"></div>
+                            <span>Purple: Correct physics</span>
+                        </div>
+                    `);
+                }
+
+                return legendItems.length > 0 ? `<div class="legend">${legendItems.join('')}</div>` : '';
+            }
+
+            createInfoBox() {
+                if (this.config.controls.acceleration) {
+                    return `
+                        <div class="info-box">
+                            <strong>Acceleration physics:</strong> Blue uses constant speed. Red multiplies speed by DT. 
+                            Green multiplies acceleration by DT for velocity updates. Purple uses the correct physics formula: 
+                            position += velocity × DT + 0.5 × acceleration × DT². Try changing frame time to see how each approach handles acceleration differently!
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="info-box">
+                            <strong>What's happening:</strong> The blue ball moves at a fixed amount per frame, so its speed changes with frame rate. 
+                            The red ball multiplies its movement by deltaTime, making its speed consistent regardless of frame rate. 
+                            Try changing the frame time to see how only the blue ball's movement speed changes!
+                        </div>
+                    `;
+                }
+            }
+
+            cacheElements() {
+                this.elements = {
+                    dtSlider: document.getElementById(`${this.containerId}-deltaTime`),
+                    speedSlider: document.getElementById(`${this.containerId}-speed`),
+                    accelerationSlider: document.getElementById(`${this.containerId}-acceleration`),
+                    dtValue: document.getElementById(`${this.containerId}-dtValue`),
+                    fpsValue: document.getElementById(`${this.containerId}-fpsValue`),
+                    speedValue: document.getElementById(`${this.containerId}-speedValue`),
+                    accelerationValue: document.getElementById(`${this.containerId}-accelerationValue`),
+                    resetButton: document.getElementById(`${this.containerId}-reset`),
+                    balls: {}
+                };
+
+                // Cache ball elements
+                Object.keys(this.ballStates).forEach(ballType => {
+                    this.elements.balls[ballType] = document.getElementById(`${this.containerId}-${ballType}Ball`);
+                });
+            }
+
+            bindEvents() {
+                if (this.elements.dtSlider) {
+                    this.elements.dtSlider.addEventListener('input', () => this.updateControls());
+                }
+                if (this.elements.speedSlider) {
+                    this.elements.speedSlider.addEventListener('input', () => this.updateControls());
+                }
+                if (this.elements.accelerationSlider) {
+                    this.elements.accelerationSlider.addEventListener('input', () => this.updateControls());
+                }
+                if (this.elements.resetButton) {
+                    this.elements.resetButton.addEventListener('click', () => this.resetBalls());
+                }
+
+                // Handle visibility changes - store handler reference for cleanup
+                this.visibilityHandler = () => {
+                    if (!document.hidden) {
+                        this.startAnimation();
+                    } else {
+                        this.stopAnimation();
+                    }
+                };
+                document.addEventListener('visibilitychange', this.visibilityHandler);
+            }
+
+            updateControls() {
+                if (this.elements.dtSlider) {
+                    const dt = parseFloat(this.elements.dtSlider.value);
+                    this.targetDeltaTime = dt;
+                    if (this.elements.dtValue) this.elements.dtValue.textContent = dt;
+                    if (this.elements.fpsValue) this.elements.fpsValue.textContent = (1000 / dt).toFixed(1);
+                }
+
+                if (this.elements.speedSlider) {
+                    const sp = parseFloat(this.elements.speedSlider.value);
+                    this.speed = sp;
+                    if (this.elements.speedValue) this.elements.speedValue.textContent = sp;
+                }
+
+                if (this.elements.accelerationSlider) {
+                    const acc = parseFloat(this.elements.accelerationSlider.value);
+                    this.acceleration = acc;
+                    if (this.elements.accelerationValue) this.elements.accelerationValue.textContent = acc;
+                }
+            }
+
+            updateBalls(deltaTime, ballTypes) {
+                const dtInSeconds = deltaTime / 1000;
+                const useAcceleration = this.config.controls.acceleration;
+                
+                ballTypes.forEach(ballType => {
+                    if (!this.config.balls[ballType] || !this.ballStates[ballType]) return;
+                    
+                    const state = this.ballStates[ballType];
+                    const baseBallType = ballType.replace('Ref', '');
+                    
+                    if (useAcceleration) {
+                        switch (baseBallType) {
+                            case 'blue':
+                                // Constant acceleration per frame (wrong)
+                                state.velocity += state.direction * 5;
+                                state.y += state.velocity * 0.016; // Assumes 60fps
+                                break;
+                                
+                            case 'red':
+                                // Still using simple speed × DT (also wrong for acceleration)
+                                state.velocity += state.direction * 5;
+                                state.y += state.velocity * dtInSeconds;
+                                break;
+                                
+                            case 'green':
+                                // Multiplies acceleration by DT (better but not perfect)
+                                state.velocity += state.direction * this.acceleration * dtInSeconds;
+                                state.y += state.velocity * dtInSeconds;
+                                break;
+                                
+                            case 'purple':
+                                // Correct physics with position integration
+                                const oldVelocity = state.velocity;
+                                state.velocity += state.direction * this.acceleration * dtInSeconds;
+                                // Correct physics: p = p + v*t + 0.5*a*t^2
+                                state.y += oldVelocity * dtInSeconds + 0.5 * state.direction * this.acceleration * dtInSeconds * dtInSeconds;
+                                break;
+                        }
+                        
+                        this.handleAccelerationBounce(ballType);
+                    } else {
+                        // Original constant velocity behavior
+                        switch (baseBallType) {
+                            case 'blue':
+                                state.y += state.direction * this.speed;
+                                break;
+                                
+                            case 'red':
+                                state.y += state.direction * this.speed * dtInSeconds * 60;
+                                break;
+                        }
+                        
+                        this.handleBounce(ballType);
+                    }
+                    
+                    // Update the visual position
+                    this.elements.balls[ballType].style.top = state.y + 'px';
+                });
+            }
+
+            handleBounce(ballType) {
+                const state = this.ballStates[ballType];
+                if (state.y <= 0) {
+                    state.y = 0;
+                    state.direction = 1;
+                } else if (state.y >= this.bounceHeight) {
+                    state.y = this.bounceHeight;
+                    state.direction = -1;
+                }
+            }
+
+            handleAccelerationBounce(ballType) {
+                const state = this.ballStates[ballType];
+                if (state.y <= 0 && state.velocity < 0) {
+                    state.y = 0;
+                    state.velocity = 0;
+                    state.direction = 1;
+                } else if (state.y >= this.bounceHeight && state.velocity > 0) {
+                    state.y = this.bounceHeight;
+                    state.velocity = 0;
+                    state.direction = -1;
+                }
+            }
+
+            animate = (currentTime) => {
+                if (this.lastTime === 0) {
+                    this.lastTime = currentTime;
+                }
+                
+                const frameTime = Math.min(currentTime - this.lastTime, 100); // Cap at 100ms to prevent spiral
+                this.lastTime = currentTime;
+                
+                // Accumulate time for main balls
+                this.accumulator += frameTime;
+                
+                // Process fixed timesteps for main balls
+                while (this.accumulator >= this.targetDeltaTime) {
+                    const normalBalls = ['blue', 'red', 'green', 'purple'].filter(b => this.config.balls[b]);
+                    if (normalBalls.length > 0) {
+                        this.updateBalls(this.targetDeltaTime, normalBalls);
+                    }
+                    this.accumulator -= this.targetDeltaTime;
+                }
+                
+                // Accumulate time for reference balls
+                this.refAccumulator += frameTime;
+                
+                // Process fixed timesteps for reference balls at 60 FPS
+                while (this.refAccumulator >= this.referenceDeltaTime) {
+                    const refBalls = ['blueRef', 'redRef', 'greenRef', 'purpleRef'].filter(b => this.config.balls[b]);
+                    if (refBalls.length > 0) {
+                        this.updateBalls(this.referenceDeltaTime, refBalls);
+                    }
+                    this.refAccumulator -= this.referenceDeltaTime;
+                }
+                
+                this.animationId = requestAnimationFrame(this.animate);
+            }
+
+            startAnimation() {
+                this.stopAnimation();
+                this.lastTime = 0;
+                this.accumulator = 0;
+                this.refAccumulator = 0;
+                this.animationId = requestAnimationFrame(this.animate);
+            }
+
+            stopAnimation() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
+            }
+
+            resetBalls() {
+                Object.keys(this.ballStates).forEach(ballType => {
+                    if (this.config.balls[ballType]) {
+                        this.ballStates[ballType] = {
+                            y: 50,
+                            velocity: 0,
+                            direction: 1
+                        };
+                        this.elements.balls[ballType].style.top = '50px';
+                    }
+                });
+                // Reset accumulators to ensure clean state
+                this.accumulator = 0;
+                this.refAccumulator = 0;
+            }
+
+            destroy() {
+                this.stopAnimation();
+                if (this.visibilityHandler) {
+                    document.removeEventListener('visibilitychange', this.visibilityHandler);
+                }
+                const container = document.getElementById(this.containerId);
+                if (container) {
+                    container.innerHTML = '';
+                }
+            }
+        }
+
+        // Create the original visualization (unchanged behavior)
+        const viz1 = new DeltaTimeVisualization('viz1-container', {
+            title: 'DeltaTime Visualization - Constant Velocity'
+        });
+
+        // Create a second visualization with acceleration
+        const viz2 = new DeltaTimeVisualization('viz2-container', {
+            title: 'DeltaTime Visualization - With Acceleration',
+            balls: {
+                blue: true,
+                blueRef: true,
+                red: true,
+                redRef: true,
+                green: true,
+                greenRef: true,
+                purple: true,
+                purpleRef: true
+            },
+            controls: {
+                deltaTime: true,
+                speed: false,
+                acceleration: true,
+                reset: true
+            },
+            initialValues: {
+                deltaTime: 33,
+                speed: 3,
+                acceleration: 300
+            }
+        });
+    </script>
+</body>
+</html>
