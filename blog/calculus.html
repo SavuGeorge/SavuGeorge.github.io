@@ -485,6 +485,7 @@
                 if (this.elements.accelerationSlider) {
                     const acc = parseFloat(this.elements.accelerationSlider.value);
                     this.acceleration = acc;
+                    this.elements.accelerationSlider.value = acc;
                     if (this.elements.accelerationValue) this.elements.accelerationValue.textContent = acc;
                 }
             }
