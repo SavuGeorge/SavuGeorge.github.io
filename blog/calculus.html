@@ -552,10 +552,12 @@
             handleBounce(ballType) {
                 const state = this.ballStates[ballType];
                 if (state.y <= 0) {
-                    state.y = 0;
+                    const overshoot = -state.y;  // How far past 0 we went
+                    state.y = overshoot;  // Reflect back by that amount
                     state.direction = 1;
                 } else if (state.y >= this.bounceHeight) {
-                    state.y = this.bounceHeight;
+                    const overshoot = state.y - this.bounceHeight;  // How far past boundary we went
+                    state.y = this.bounceHeight - overshoot;  // Reflect back by that amount
                     state.direction = -1;
                 }
             }
@@ -563,12 +565,14 @@
             handleAccelerationBounce(ballType) {
                 const state = this.ballStates[ballType];
                 if (state.y <= 0 && state.velocity < 0) {
-                    state.y = 0;
-                    state.velocity = 0;
+                    const overshoot = -state.y;  // How far past 0 we went
+                    state.y = overshoot;  // Reflect position
+                    state.velocity = 0;   // Reset velocity for acceleration from rest
                     state.direction = 1;
                 } else if (state.y >= this.bounceHeight && state.velocity > 0) {
-                    state.y = this.bounceHeight;
-                    state.velocity = 0;
+                    const overshoot = state.y - this.bounceHeight;  // How far past boundary we went
+                    state.y = this.bounceHeight - overshoot;  // Reflect position
+                    state.velocity = 0;   // Reset velocity for acceleration from rest
                     state.direction = -1;
                 }
             }
