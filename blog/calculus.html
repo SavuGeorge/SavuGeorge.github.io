@@ -3,14 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeltaTime Visualization</title>
+    <title>Calculus: How to use calculus for better gameplay - George B. Green's stuff</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+        document.addEventListener('DOMContentLoaded', (event) => {
+            hljs.highlightAll();
+        });
+    </script>
     <style>
         body {
-            font-family: 'Inter', Arial, sans-serif;
+            background-color: #eff4f7;
+            color: #333333;
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 1.2em;
             margin: 0;
-            padding: 20px;
-            background: #eff4f7;
-            color: #333;
+            margin-top: 4.5em;
+            line-height: 1.6;
+        }
+        
+        @media screen and (max-device-width: 480px){
+            body{
+                font-size: 3em;	
+                margin-top: 0.4em;
+            }
+        }
+        
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            gap: 1.5em;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.6em 2em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+            border-radius: 0.4em;
+            transition: all 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+
+        .navbar a.active {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.15);
+            font-weight: 600;
+        }
+
+        @media screen and (max-device-width: 480px){
+            .navbar {
+                position: relative;
+                justify-content: center;
+                margin-bottom: 1em;
+                background: #ffffff;
+                backdrop-filter: none;
+                padding: 0.8em 1em;
+            }
+            
+            .navbar a {
+                font-size: 2em;
+                padding: 0.3em 0.6em;
+            }
+        }
+        
+        /* Layout */
+        .outer {
+            display: table;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+        .middle {
+            display: table-cell;
+            vertical-align: middle; 
+        }
+        .inner {
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 900px;
+            padding: 0 20px;
+        }
+        @media screen and (max-device-width: 480px){
+            .inner{
+                max-width: 100%;
+            }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        pre {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Custom syntax highlighting adjustments */
+        .hljs {
+            background: #f8f8f8 !important;
+        }
+
+        /* Links */
+        a {
+            color: #0056b3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color .3s ease;
+        }
+        a:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid #eee;
+            margin: 40px 0;
         }
 
         .container {
@@ -20,14 +189,6 @@
             border-radius: 12px;
             padding: 30px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #4a90e2;
-            padding-bottom: 10px;
         }
 
         .controls {
@@ -112,6 +273,28 @@
 
         .reset-button:active {
             transform: translateY(0);
+        }
+
+        .next-post-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 30px auto;
+        }
+
+        .next-post-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
         }
 
         .visualization {
@@ -222,8 +405,230 @@
     </style>
 </head>
 <body>
-    <div id="viz1-container"></div>
-    <div id="viz2-container"></div>
+    <nav class="navbar">
+        <a href="../index.html">Home</a>
+        <a href="./" class="active">Blog</a>
+        <a href="../performance.html">Performance Consulting</a>
+        <a href="../networking.html">Networking Consulting</a>
+    </nav>
+    
+    <div class="outer">
+        <div class="middle">
+            <div class="inner">
+                <h1>Calculus: How to use calculus for better gameplay</h1>
+
+                <p>Most of you reading this post know what deltaTime is, and you know to multiply things by it to make your game framerate independent. Or, rather, most of you think you are making your game framerate independent by doing that.</p>
+
+                <p>The bad news is, for most things just multiplying by DT won't be enough. The good news is, we get to use a bit of calculus to gain actual framerate independence! Well... Maybe that's bad news for a lot of you. I think it's spectacular news (˵ ͡° ͜ʖ ͡°˵)</p>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="./images/cat-with-gun.png" alt="Cat with gun meme" style="max-width: 300px; height: auto; border-radius: 8px;">
+                </div>
+
+                <p>This isn't optional either. Stand down calmly and pay attention, or meow-meow is gonna have to deal with you.</p>
+
+                <p>Very well! Let's begin!</p>
+
+                <h2>Constant Velocity and DT</h2>
+
+                <p>What we have below is something you should already be pretty familiar with. The simplest example: An object moving at constant speed. You can adjust the framerate, as well as the movement speed of the circles. Each circle has a reference next to it, designated by the same color at lower saturation. These references are always updated at 60 fps.</p>
+
+                <p>The blue circle is simply moving a constant amount based on its speed every frame. The result is, of course, that it moves faster as framerate increases. If the stepsize is constant, more steps per second means more distance covered.</p>
+
+                <p>The red circle multiplies by Delta Time. That is, the time elapsed since the last frame. If we update at 10 FPS, and our frames are consistent in time, that will give us a Delta Time (DT) of 0.1. This, in turn, means that our speed value is now equivalent to "distance per second".</p>
+
+                <div id="viz1-container"></div>
+
+                <p>Play around with the slider for a bit. You'll notice the red circles stay in sync regardless of framerate or speed values. The blue circles diverge over time. At higher speed or framerate values, they diverge even faster.</p>
+
+                <p>Even in this simple case, there's a subtle error one could make. It comes from the behavior of bouncing back and forth. In the frames where a circle reaches its end position, it'll often have some "leftover" movement. If it was going to move 7 units, but was 3 units away from its final position, it would still have to move 4 more units after changing direction, in the same frame.</p>
+
+                <p>If it doesn't do that, and instead stops at its position regardless of the leftover movement, the two circles will diverge in their position over time. This is because the size of the residual movement will, on average, be larger at lower framerates.</p>
+
+                <pre><code class="language-csharp">// INCORRECT - Truncates leftover movement
+void UpdatePosition() {
+    position += direction * speed * Time.deltaTime;
+    
+    if (position <= 0) {
+        position = 0;  // Truncates overshoot!
+        direction = 1;
+    } else if (position >= maxHeight) {
+        position = maxHeight;  // Truncates overshoot!
+        direction = -1;
+    }
+}
+
+// CORRECT - Handles leftover movement
+void UpdatePosition() {
+    position += direction * speed * Time.deltaTime;
+    
+    if (position <= 0) {
+        float overshoot = -position;
+        position = overshoot;  // Bounce with overshoot
+        direction = 1;
+    } else if (position >= maxHeight) {
+        float overshoot = position - maxHeight;
+        position = maxHeight - overshoot;  // Bounce with overshoot
+        direction = -1;
+    }
+}</code></pre>
+
+                <p>You can enable the "Truncate Bounce" mode to see this. The circles will diverge from their reference a bit more with each bounce. At lower framerate and higher speeds the error will accumulate much faster.</p>
+
+                <p>So, even in the simple case there's errors you could make. Even here, it's worth thinking about. But, things get more complicated. Let's go to an example where the "just multiply by DT" rule-of-thumb fails to give us the right result.</p>
+
+                <h2>Acceleration</h2>
+
+                <p>In our last example, speed was a constant. Now, it is also something that changes over time.</p>
+
+                <p>Just multiplying our movement by DT obviously gives us the wrong result, since the change in speed will be framerate-dependent. As expected, the red circle and its reference quickly diverge.</p>
+
+                <p>So, let's just multiply acceleration by DT as well. That should do the trick! The change in our position is made framerate-independent, and the change in our speed is made framerate independent. This is what the green circles are doing:</p>
+
+                <div id="viz2-container"></div>
+
+                <p>If you give it a bit of time, you'll notice that the green circle and its reference are still diverging over time. The divergence happens faster at lower framerates and/or higher acceleration values.</p>
+
+                <p>The purple version does something different. The same divergence isn't happening for it. We'll go over what it does differently in a little bit. But first, why isn't multiplying both acceleration and movement by DT enough?</p>
+
+                <p>This is where the calculus comes in.</p>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="./images/figure1.png" alt="Graph showing constant velocity over time" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                </div>
+
+                <p>We're out of cool visualizations, so it's shoddy drawings I made from here on out.</p>
+
+                <p>What we have above is a graphed out function representing our speed over time in the first example. The X axis is time, the Y axis is our speed. Since our speed was constant, it is a straight line, it doesn't change with time. The X-axis is broken up into DT chunks, these are the chunks of time we actually get to work with in our game.</p>
+
+                <p>So, it becomes pretty easy to see what we have to do to calculate our movement over a specific frame of length DT. If we define our speed as just distance/second, and our DT is measured in seconds, then we just have to do some simple math to calculate our movement.</p>
+
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; margin: 20px 0; border-radius: 6px; text-align: center;">
+                    $$\left(\frac{\text{distance}}{1 \text{ second}}\right) \times \text{DT seconds} = \text{distance moved over DT time}$$
+                </div>
+
+                <p>When graphed out we can see how this translates nicely to geometry! We're just calculating the area of a rectangle. Time is the width, speed is the height, area is just width × speed.</p>
+
+                <p>That is what we are doing when we multiply by DT.</p>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="./images/figure2.png" alt="Graph showing linear acceleration over time" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                </div>
+
+                <p>Now, let's take a look at what is happening in our second visualization. Our speed now starts at 0, and increases linearly. So, let's graph out that new function.</p>
+
+                <p>Our goal is the same as before. The amount of distance we have to move is equal to the area of the shape underneath our function, between time T and T + DT.</p>
+
+                <p>What changed is that shape is no longer a rectangle! What we have is more like a rectangle, and then a right triangle on top of it. With some pen and paper, you could still calculate that area pretty easily using some basic geometry.</p>
+
+                <p>But, part of the fun of math is there are many methods to achieve the same thing. Calculating "Area under a function" is in fact exactly what integrals do. What we actually want is a bit different: "Area under a function between two specific points on the X axis"; Definite integrals do exactly that!</p>
+
+                <p>Developing an understanding for *why* integrals can do that is probably good, but not entirely necessary. For our current purposes, we will gloss over why this works. If you do want to learn the why, I've added some useful links at the bottom of the page.</p>
+
+                <p>As for, how do you actually solve an integral, there's a few different answers. The easy path is: Just stick it into one of the many tools that can solve them for you. I like <a href="https://www.wolframalpha.com/">Wolfram Alpha</a>. You just copy paste the integral in, and it'll probably be able to give you a solution. The harder path is: You learn how to do it yourself. For simple integrals, there's a few basic formulas that will just give you the answer. Beyond that, there's a few basic rules that can allow you to decompose more complex integrals into simpler ones. For example: Substitution, integration by parts, etc.</p>
+
+                <p>For most of your game development purposes, using a tool to get the right answer will be good enough. The critical skill is to be able to correctly formulate the problem, that's the prerequisite for being able to use a tool like Wolfram Alpha.</p>
+
+                <p>Anyways, so back to our example. Here's how you compute a definite integral:</p>
+
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; margin: 20px 0; border-radius: 6px; text-align: center;">
+                    $$\int_a^b f(x) \, dx = F(b) - F(a)$$
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">where F(x) is the antiderivative of f(x)</p>
+                </div>
+
+                <p>And now here's our specific example:</p>
+
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; margin: 20px 0; border-radius: 6px; text-align: center;">
+                    <p>For velocity function: $v(t) = a \cdot t$ (where $a$ is acceleration)</p>
+                    $$\text{Distance} = \int_T^{T+\text{DT}} a \cdot t \, dt = \frac{a \cdot t^2}{2} \Big|_T^{T+\text{DT}}$$
+                    $$= \frac{a \cdot (T+\text{DT})^2}{2} - \frac{a \cdot T^2}{2}$$
+                    $$= \frac{a}{2}(T^2 + 2T \cdot \text{DT} + \text{DT}^2) - \frac{a \cdot T^2}{2}$$
+                    $$= a \cdot T \cdot \text{DT} + \frac{a \cdot \text{DT}^2}{2}$$
+                </div>
+
+                <p>This gives us the correct physics formula: <strong>position += velocity × DT + 0.5 × acceleration × DT²</strong></p>
+
+                <p>Onto a slightly different example:</p>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="./images/figure3.png" alt="Graph showing more complex velocity function" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                </div>
+
+                <p>For more complex velocity functions like $v(t) = t^3$:</p>
+
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; margin: 20px 0; border-radius: 6px; text-align: center;">
+                    $$\text{Distance} = \int_T^{T+\text{DT}} t^3 \, dt = \frac{t^4}{4} \Big|_T^{T+\text{DT}}$$
+                    $$= \frac{(T+\text{DT})^4}{4} - \frac{T^4}{4}$$
+                </div>
+
+                <h2>Why Bother?</h2>
+
+                <p>Some would argue that the approximate solutions are good enough, people don't care and can't notice that your game isn't mathematically perfect. Who cares if everything has a few units of error over time.</p>
+
+                <p>I would say, if everything accumulated a few units of error over time in the same way, then it wouldn't matter. That isn't what happens in practice. Each one of your functions will accumulate error in different patterns and at different rates.</p>
+
+                <p>In practice, this translates to different game systems accumulating error at different rates across framerate variations. Perhaps your walking stays consistent, while your sprint gains higher acceleration at higher framerates. Your jump becomes a bit shorter as your framerate increases, and a bit longer as it decreases. Your dodge-roll feels more bursty and covers a shorter distance as your framerate goes up, and it feels floatier but reaches further as your framerate goes down.</p>
+
+                <p>Essentially none of your players are going to be able to articulate things like that. You won't get a playtester that will report these inconsistencies to you. At best, maybe you'll get some vague acknowledgement that some of your systems "feel" wrong.</p>
+
+                <p>You shouldn't confuse that difficulty in articulating the problem to mean that there is no problem. The players do notice. In fact, most of what players notice about your game isn't something they can articulate.</p>
+
+                <p>If you don't believe that, take a different example. You've probably worn many pairs of shoes in your life; Some you've experienced as being more comfortable, others less-so. If someone were to ask you what exactly determined your experience, you probably wouldn't be able to articulate any of the details. The details are there, and if you spent enough time examining your own experience you'd start to find them.</p>
+
+                <p>That being said, not every single detail is important, of course. Some systems do just fine with simple approximations. They don't need that much consistency.</p>
+
+                <p>The important parts are:</p>
+                <ol>
+                    <li>Being aware of when you are using an approximation, as opposed to the mathematically correct code.</li>
+                    <li>Testing your game across very different framerates, and obsessing over the details. Does your dodge roll feel the same at 30fps and at 60fps? Does it cover the same distance? Does it take the same amount of time to complete? If you're able to verify that all of the above are true, you probably have a good enough solution. If some of the above aren't true, then you'll have the tools to make it so.</li>
+                    <li>Anything where error accumulates over time, you should probably get an exact solution for.</li>
+                </ol>
+
+                <h2>Game Feel</h2>
+
+                <p>In my opinion, the above problem falls under the umbrella of Game Feel. I think by now there's broad agreement in the game development community that Game Feel is an important part of games. What is currently lacking, for the most part, is a concrete understanding of what Good Game Feel actually entails.</p>
+
+                <p>For the most part, it's still a field made up of mostly tacit knowledge. Each developer has their own bag of tricks, and develops their own unspoken intuition to guide them. Currently, it is almost all art, and almost no science.</p>
+
+                <p>That's not really a good thing though. Mixing a bit of science into the art often leads to great results. That is a big part of what happened in the Renaissance.</p>
+
+                <div style="display: flex; justify-content: center; gap: 20px; margin: 30px 0; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <img src="./images/medieval.jpg" alt="Medieval art example" style="max-width: 300px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 8px;">Medieval</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="./images/renaissance.webp" alt="Renaissance art example" style="max-width: 600px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 8px;">Renaissance</p>
+                    </div>
+                </div>
+
+                <p>That is a big part of what separates the two images above. A common foundation of perspective, anatomy, optics, proportions. A foundation made not of art, but of science and reliable rules. That foundation didn't stifle art and creativity. It led to, well, a renaissance of creativity. More ambitious and profound works became possible, because of a stable foundation. Even abstract modern art was ultimately able to evolve by standing on top of that same foundation, and making deliberate decisions to deviate from it in interesting ways.</p>
+
+                <p>I think a bit of basic calculus is one of those foundational tools for game feel. Consistency and accuracy across different framerates is far from the only way we can apply calculus for Game Feel.</p>
+
+                <p>In the followup to this post I'll talk about how I built the knockback system for The Bleak Divine. There, we will build a knockback system for a 2D Souls-Like platformer that:</p>
+                <ol>
+                    <li>Always covers an exact, configurable distance. This can be any number we pass in at runtime.</li>
+                    <li>Always takes an exact, configurable time to complete. This can also be any number we choose at runtime.</li>
+                    <li>Isn't a linear movement, but rather uses a nice falloff-curve; Fast at the beginning of the movement, slows down to a standstill towards the end.</li>
+                </ol>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="calculus2.html" class="next-post-button">Read Part 2: Advanced Game Feel with Calculus →</a>
+                </div>
+
+                <hr>
+
+                <p><strong>Links:</strong></p>
+                <ul>
+                    <li><a href="https://www.youtube.com/watch?v=yGhfUcPjXuE&t=769s">Excellent video explaining delta time</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=YNtoDGS4uak&t=780s">Math in games talk by ginger bill (from time 13:00)</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=WUvTyaaNkzM&list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr">3blue1brown essence of calculus series</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
     <script>
         class DeltaTimeVisualization {
