@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitmasking - George B. Green's stuff</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #eff4f7;
+            color: #333333;
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 1.2em;
+            margin: 0;
+            margin-top: 4.5em;
+            line-height: 1.6;
+        }
+        
+        @media screen and (max-device-width: 480px){
+            body{
+                font-size: 3em;	
+                margin-top: 0.4em;
+            }
+        }
+        
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            gap: 1.5em;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.6em 2em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+            border-radius: 0.4em;
+            transition: all 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+
+        .navbar a.active {
+            color: #0056b3;
+            background-color: rgba(0, 86, 179, 0.15);
+            font-weight: 600;
+        }
+
+        @media screen and (max-device-width: 480px){
+            .navbar {
+                position: relative;
+                justify-content: center;
+                margin-bottom: 1em;
+                background: #ffffff;
+                backdrop-filter: none;
+                padding: 0.8em 1em;
+            }
+            
+            .navbar a {
+                font-size: 2em;
+                padding: 0.3em 0.6em;
+            }
+        }
+        
+        /* Layout */
+        .outer {
+            display: table;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+        .middle {
+            display: table-cell;
+            vertical-align: middle; 
+        }
+        .inner {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        @media screen and (max-device-width: 480px){
+            .inner{
+                max-width: 100%;
+            }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            text-align: center;
+            margin-bottom: 2em;
+        }
+        
+        .under-construction {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 1em;
+            padding: 3em 2em;
+            margin: 2em 0;
+            color: white;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+        
+        .construction-emoji {
+            font-size: 4em;
+            margin-bottom: 0.5em;
+            display: block;
+        }
+        
+        .construction-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 0.5em;
+        }
+        
+        .construction-message {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 1.5em;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8em 1.5em;
+            border-radius: 2em;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .preview-text {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5em;
+            padding: 1em;
+            margin-top: 1em;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        /* Links */
+        a {
+            color: #0056b3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color .3s ease;
+        }
+        a:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="../index.html">Home</a>
+        <a href="./" class="active">Blog</a>
+        <a href="../performance.html">Performance Consulting</a>
+        <a href="../networking.html">Networking Consulting</a>
+    </nav>
+    
+    <div class="outer">
+        <div class="middle">
+            <div class="inner">
+                <h1>Bitmasking</h1>
+
+                <div class="under-construction">
+                    <span class="construction-emoji">🚧👷‍♂️🔨</span>
+                    <div class="construction-title">Under Construction!</div>
+                    <div class="construction-message">
+                        This post is currently being crafted with care.<br>
+                        Check back soon for some quality content! ✨
+                    </div>
+                    <div class="preview-text">
+                        Preview: Struct bitmasking for bandwidth reduction in multiplayer games
+                    </div>
+                    <a href="./" class="back-button">← Back to Blog Index</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
