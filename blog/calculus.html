@@ -533,33 +533,87 @@ void UpdatePosition() {
 
                 <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; margin: 20px 0; border-radius: 6px; text-align: center;">
                     $$\int_a^b f(x) \, dx = F(b) - F(a)$$
-                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">where F(x) is the antiderivative of f(x)</p>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">where F(x) is the antiderivative (integral) of f(x)</p>
                 </div>
 
                 <p>And now here's our specific example:</p>
 
                 <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; margin: 20px 0; border-radius: 6px; text-align: center;">
-                    <p>For velocity function: $v(t) = a \cdot t$ (where $a$ is acceleration)</p>
+                    <p>$$\text{For velocity function: } v(t) = a \cdot t$$ (where a is acceleration)</p>
                     $$\text{Distance} = \int_T^{T+\text{DT}} a \cdot t \, dt = \frac{a \cdot t^2}{2} \Big|_T^{T+\text{DT}}$$
                     $$= \frac{a \cdot (T+\text{DT})^2}{2} - \frac{a \cdot T^2}{2}$$
                     $$= \frac{a}{2}(T^2 + 2T \cdot \text{DT} + \text{DT}^2) - \frac{a \cdot T^2}{2}$$
                     $$= a \cdot T \cdot \text{DT} + \frac{a \cdot \text{DT}^2}{2}$$
                 </div>
 
-                <p>This gives us the correct physics formula: <strong>position += velocity × DT + 0.5 × acceleration × DT²</strong></p>
+                <p>This gives us the correct formula for updating our position: <strong>position += acceleration x Time × DT + 0.5 × acceleration × DT²</strong></p>
+                <p>Time is the time we've been accelerating for until the start of last frame. In other words, acceleration x Time is just our velocity at the start of last frame </p>
+                <p>So, we can simplify our formula to: <strong>position += old_velocity × DT + 0.5 × acceleration × DT²</strong></p>
+                <p>This is what the purple circle in our visualization is using. </p>
 
-                <p>Onto a slightly different example:</p>
+                <p>Here's how you'd implement this in code:</p>
+                <pre><code class="language-csharp">// Correct physics for constant acceleration
+                void UpdatePositionWithAcceleration() {
+                    float dt = Time.deltaTime;
+                    
+                    // Store the velocity at the start of this frame
+                    float oldVelocity = velocity;
+                    
+                    // Update velocity (acceleration changes velocity over time)
+                    velocity += acceleration * dt;
+                    
+                    // Update position using the correct physics formula
+                    // This accounts for the changing velocity during the frame
+                    position += oldVelocity * dt + 0.5f * acceleration * dt * dt;
+                }</code></pre>
+
+
+                <p>Let's take a look at a slightly more complex example, where our velocity goes up exponentially:</p>
 
                 <div style="text-align: center; margin: 20px 0;">
                     <img src="./images/figure3.png" alt="Graph showing more complex velocity function" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 </div>
 
-                <p>For more complex velocity functions like $v(t) = t^3$:</p>
+                <p>Here, our acceleration function is: </p>
+                <p>$$ v(t) = a * t^3$$</p>
+
+                <p>Our acceleration is now rising at an exponential rate! Cubically, to be precise! Unlike the last example, there's no basic geometry alternative. Fortunately, the calculus solution is pretty much just as simple! The only thing that has changed is our speed function. We're just integrating this new function. It is a simple one. </p>
 
                 <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; margin: 20px 0; border-radius: 6px; text-align: center;">
-                    $$\text{Distance} = \int_T^{T+\text{DT}} t^3 \, dt = \frac{t^4}{4} \Big|_T^{T+\text{DT}}$$
-                    $$= \frac{(T+\text{DT})^4}{4} - \frac{T^4}{4}$$
+                    $$\text{Distance} = \int_T^{T+\text{DT}} a \cdot t^3 \, dt = \frac{a \cdot t^4}{4} \Big|_T^{T+\text{DT}}$$
+                    $$= \frac{a \cdot (T+\text{DT})^4}{4} - \frac{a \cdot T^4}{4}$$
+                    $$= \frac{a}{4}(T^4 + 4T^3 \cdot \text{DT} + 6T^2 \cdot \text{DT}^2 + 4T \cdot \text{DT}^3 + \text{DT}^4 - T^4)$$
+                    $$= a \cdot T^3 \cdot \text{DT} + \frac{3a \cdot T^2 \cdot \text{DT}^2}{2} + a \cdot T \cdot \text{DT}^3 + \frac{a \cdot \text{DT}^4}{4}$$
                 </div>
+
+                <p> That again, gives us the correct formula for updating our position:</p>
+                <p><strong>position += old_velocity × DT + 1.5 × a × T² × DT² + a × T × DT³ + 0.25 × a × DT⁴</strong></p>
+
+                <p>Here's how you'd implement this in code:</p>
+                <pre><code class="language-csharp">// Correct physics for cubic velocity function v(t) = a * t³
+                void UpdatePositionWithCubicVelocity() {
+                    float dt = Time.deltaTime;
+                    
+                    // Current time since movement started
+                    float T = timeSinceStart;
+                    
+                    // Calculate velocity at start of frame: v = a * T³
+                    float oldVelocity = accelerationConstant * T * T * T;
+                    
+                    // Update position using the integrated formula
+                    position += oldVelocity * dt 
+                            + 1.5f * accelerationConstant * T * T * dt * dt
+                            + accelerationConstant * T * dt * dt * dt
+                            + 0.25f * accelerationConstant * dt * dt * dt * dt;
+                    
+                    // Update time for next frame
+                    timeSinceStart += dt;
+                    
+                    // For small dt values, you can often ignore the higher-order terms:
+                    // position += oldVelocity * dt + 1.5f * accelerationConstant * T * T * dt * dt;
+                    // their contribution to the error will be tiny. The amount of accuracy you actually need varies a lot.
+                }</code></pre>
+
 
                 <h2>Why Bother?</h2>
 
